@@ -435,10 +435,13 @@ abstract class BasicObject {
 	}
 
 
-	public static function count($params = array()){
+	public static function count($params = array(), $debug = false){
 		global $db;
 		$data = static::build_query($params, 'count');
 		$query = array_shift($data);
+		if($debug) {
+			echo "<pre>$query</pre>";
+		}
 		$stmt = $db->prepare($query);
 		foreach($data as $key => $value) {
 			$data[$key] = &$data[$key];
