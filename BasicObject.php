@@ -6,6 +6,7 @@
 abstract class BasicObject {
 
 	protected $_data;
+	protected $_old_key = array();
 	protected $_exists;
 
 	/**
@@ -233,6 +234,10 @@ abstract class BasicObject {
 			$this->$name = $value;
 		}
 		if($this->in_table($name, $this->table_name())) {
+			$pk = $this->id_name();
+			if($this->_exists && ((is_array($pk) && in_array($name, $pk)) || $pk == $name)) {
+				$this->_old_key[$name] = $this->$name;
+			}
 			$this->_data[$name] = $value;
 		} elseif($this->is_table($name) && $this->in_table($this->id_name($name), $this->table_name())) {
 			$name = $this->id_name($name);
@@ -292,16 +297,19 @@ abstract class BasicObject {
 				$query .= "\nWHERE ";
 				$subquery = '';
 				foreach($id_name as $field) {
-					$subquery .= "`$field` = ? AND ";
 					$dummy[$field] = $this->$field;
+					if(array_key_exists($field, $this->_old_key)) {
+						$dummy[$field] = $this->_old_key[$field];
+					}
+					$subquery .= "`$field` = ? AND ";
 					$params[] = &$dummy[$field];
-					$types .= 'i';
+					$types .= 's';
 				}
 				$query .= substr($subquery, 0, -5);
 			} else {
 				$query .= "\nWHERE `$id_name` = ?";
 				$id = $this->id;
-				$types .= 'i';
+				$types .= 's';
 				$params[] = &$id;
 			}
 		}
@@ -440,13 +448,14 @@ abstract class BasicObject {
 		$data = static::build_query($params, 'count');
 		$query = array_shift($data);
 		if($debug) {
-			echo "<pre>$query</pre>";
+			echo "<pre>$query</pre>\n";
+			var_dump($data);
 		}
 		$stmt = $db->prepare($query);
 		foreach($data as $key => $value) {
 			$data[$key] = &$data[$key];
 		}
-		if(count($params)!=0) {
+		if(count($data)>1) {
 			call_user_func_array(array($stmt, 'bind_param'), $data);
 		}
 		$stmt->execute();
@@ -457,7 +466,7 @@ abstract class BasicObject {
 		return $result;
 	}
 
-	public static function selection($params = array()){
+	public static function selection($params = array(), $debug=false){
 		global $db;
 		$data = self::build_query($params, '*');
 		$query = array_shift($data);
@@ -470,6 +479,10 @@ abstract class BasicObject {
 		}
 		if(count($data)>1) {
 			call_user_func_array(array($stmt, 'bind_param'), $data);
+		}
+		if($debug) {
+			echo "<pre>$query</pre>";
+			var_dump($data);
 		}
 		$stmt->execute();
 		$stmt->store_result();
