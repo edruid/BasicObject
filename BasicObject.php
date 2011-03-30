@@ -837,7 +837,7 @@ abstract class BasicObject {
 		if(!isset($tables[$table])){
 			$tables[$table] = self::columns($table);
 		}
-		return in_array(strtolower($column), $tables[$table]);
+		return in_array($column, $tables[$table]);
 	}
 
 	private static function connection($table1, $table2) {
