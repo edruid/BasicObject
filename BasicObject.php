@@ -180,7 +180,7 @@ abstract class BasicObject {
 		if($this->in_table($name, $this->table_name())){
 			if(array_key_exists(strtolower($name), $this->_data)) {
 				$ret = $this->_data[strtolower($name)];
-				if(HTML_ACCESS) {
+				if(HTML_ACCESS && is_string($ret)) {
 					$ret = htmlspecialchars($ret, ENT_QUOTES, 'utf-8');
 				}
 				return $ret;
