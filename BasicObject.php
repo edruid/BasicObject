@@ -16,44 +16,6 @@ abstract class BasicObject {
 //	abstract protected static function table_name();
 
 	/**
-	 * Returns a list of Objects of this class where the conditions
-	 * specified in $params are true on all objects.
-	 * @param $params Array An array of conditions.
-	 * If $params is empty, all objects will be returned.
-	 * $params is structured as:
-	 *   array(
-	 *     '<<column>>:<<operator>>' => <<value>>,
-	 *     array(
-	 *       'column' => <<column>>,
-	 *       'value' => <<value>>
-	 *     ),
-	 *     '@manual_query' => <<valid where clause>>,
-	 *     [...,]
-	 *     // special clauses
-	 *     '@or' => array([<params>]),
-	 *     '@and' => array([<params>]),
-	 *     '@order' => array(<<order-column>> [, <<order-column>> ...]) | <<order-column>>,
-	 *     '@limit' => array(<<limit>> [, <<limit>>]),
-	 *   )
-	 * @returns Array An array of Objects.
-	 */
-//	abstract public static function selection($params = array());
-
-	/**
-	 * Returns the number of items matching the conditions.
-	 * @param $params Array Se selection for structure of $params.
-	 * @returns Int the number of items matching the conditions.
-	 */
-//	abstract public static function count($params = array());
-
-	/**
-	 * Returns the Object with object_id = $id.
-	 * @param $id Integer The ID of the Object requested.
-	 * @return Object The Object specified by $id.
-	 */
-//	abstract public static function from_id($id);
-
-	/**
 	 * Returns the table name associated with this class.
 	 * @return The name of the table this class is associated with.
 	 */
@@ -363,6 +325,11 @@ abstract class BasicObject {
 		unset($this);
 	}
 
+	/**
+	 * Returns the Object with object_id = $id.
+	 * @param $id Integer The ID of the Object requested.
+	 * @return Object The Object specified by $id.
+	 */
 	public static function from_id($id){
 		$id_name = static::id_name(); 
 		return static::from_field($id_name, $id);
@@ -442,7 +409,11 @@ abstract class BasicObject {
 		return $result;
 	}
 
-
+	/**
+	 * Returns the number of items matching the conditions.
+	 * @param $params Array Se selection for structure of $params.
+	 * @returns Int the number of items matching the conditions.
+	 */
 	public static function count($params = array(), $debug = false){
 		global $db;
 		$data = static::build_query($params, 'count');
@@ -466,6 +437,28 @@ abstract class BasicObject {
 		return $result;
 	}
 
+	/**
+	 * Returns a list of Objects of this class where the conditions
+	 * specified in $params are true on all objects.
+	 * @param $params Array An array of conditions.
+	 * If $params is empty, all objects will be returned.
+	 * $params is structured as:
+	 *   array(
+	 *     '<<column>>:<<operator>>' => <<value>>,
+	 *     array(
+	 *       'column' => <<column>>,
+	 *       'value' => <<value>>
+	 *     ),
+	 *     '@manual_query' => <<valid where clause>>,
+	 *     [...,]
+	 *     // special clauses
+	 *     '@or' => array([<params>]),
+	 *     '@and' => array([<params>]),
+	 *     '@order' => array(<<order-column>> [, <<order-column>> ...]) | <<order-column>>,
+	 *     '@limit' => array(<<limit>> [, <<limit>>]),
+	 *   )
+	 * @returns Array An array of Objects.
+	 */
 	public static function selection($params = array(), $debug=false){
 		global $db;
 		$data = self::build_query($params, '*');
