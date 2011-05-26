@@ -5,6 +5,7 @@
  */ 
 abstract class BasicObject {
 
+	public $errors=array();
 	protected $_data;
 	protected $_old_key = array();
 	protected $_exists;
@@ -14,7 +15,16 @@ abstract class BasicObject {
 	 * @return The name of the table this class is associated with.
 	 */
 //	abstract protected static function table_name();
+	/**
+	 * Runs validator hooks for this model
+	 */
+//	abstract protected function validation_hooks();
 
+	/**
+	 * Set this method to return the name of the field to order by if
+	 * nothing else is specified
+	 */
+// abstract protected static function default_order();
 	/**
 	 * Returns the table name associated with this class.
 	 * @return The name of the table this class is associated with.
@@ -228,9 +238,12 @@ abstract class BasicObject {
 	 * If the inhereting class wants to do special things on creation, it is best to overload this method
 	 * and do them again.
 	 */
-	public function commit() {
+	public function commit($validate=true) {
 		global $db;
 		$id_name = $this->id_name();
+		if($validate && !$this->validate()) {
+			return false;
+		}
 		if(isset($this->_exists) && $this->_exists){
 			$query = "UPDATE `".$this->table_name()."` SET\n";
 			$old_object = $this->get_fresh_instance();
@@ -250,7 +263,7 @@ abstract class BasicObject {
 		}
 		if(!$change) {
 			// No change to data means no on change hooks in mysql.
-			return;
+			return true;
 		}
 		$query = substr($query, 0, -2);
 
@@ -290,6 +303,7 @@ abstract class BasicObject {
 			}
 			$this->_data = $object->_data;
 		}
+		return true;
 	}
 
 	/**
@@ -325,6 +339,24 @@ abstract class BasicObject {
 		unset($this);
 	}
 
+	/**
+	 * Runs validation hooks. Returns true if this instance validates
+	 * All errors are filled into $errors
+	 */
+	public function validate() {
+		$this->validation_hooks();
+		return !$this->has_errors();
+	}
+
+	/**
+	 * Does not perform any check, but returns true if
+	 * a previous validation found errors
+	 */
+	public function has_errors() {
+		return (count($this->errors) >  0);;
+	}
+
+	protected function validation_hooks() {}
 	/**
 	 * Returns the Object with object_id = $id.
 	 * @param $id Integer The ID of the Object requested.
@@ -856,6 +888,90 @@ abstract class BasicObject {
 		}
 		return $db_name;
 	}
+	protected function add_error($var, $msg) {
+		//if(!isset($this->errors[$var])) 
+			//$this->errors[$var] = array();
+		$this->errors[$var][] = $msg;
+	}
+
+	/***********
+	 *	Validators
+	 **********/
+
+	/**
+	 * Validates that $var is set
+	 */
+	protected function validate_presence_of($var) {
+		if($this->$var == null || $this->$var == "") {
+			$this->add_error($var,"måste fyllas i");
+		}
+	}
+
+	/**
+	 * Validates that $var is a number
+	 * options:
+	 *		only_integers: true|false, default: false
+	 *		allow_null: true|false, default: false
+	 */
+	protected function validate_numericality_of($var,$options=array()) {
+		if(isset($options['allow_null']) && $options['allow_null'] && $this->$var == null)
+			return;
+
+		if(isset($options['only_integers']) && $options['only_integers']) { 
+			if(!is_numeric($this->$var) || preg_match('/\A[+-]?\d+\Z/',$this->$var)!=1) {
+				$this->add_error($var,"måste vara ett heltal");
+			}		
+		} else if(!is_numeric($this->$var)){
+			$this->add_error($var,"måste vara ett nummer");
+		}
+	}
+
+	/**
+	 * Validates the lenght of $var 
+	 * If no options are set no check is made
+	 * options:
+	 *		is: Lenght must be exactly this value	
+	 *		minimum: Lenght must be at least this value
+	 *		maximum: Lenght must be at most this value
+	 */	
+	protected function validate_lenght_of($var,$options=array()) {
+		if(isset($options['is']) && $options['is'] != strlen($this->$var)) {
+			$this->add_error($var,"måste vara exakt {$options['is']} tecken lång");
+			return;
+		} 
+		if(isset($options['minimum']) && $options['minimum'] > strlen($this->$var)) {
+			$this->add_error($var,"måste vara minst {$options['minimum']} tecken lång");
+			return;
+		} 
+		if(isset($options['maximum']) && $options['maximum'] > strlen($this->$var)) {
+			$this->add_error($var,"får inte vara längre än {$options['maximum']} tecken");
+			return;
+		} 
+	}
+
+
+	/**
+	 * Validates the format of $var
+	 * The second option is a regular expression to match
+	 * options:
+	 *		message: The error message to show. Default: "ogiltligt format"	
+	 */
+	 protected function validate_format_of($var,$format,$options=array()) {
+		if(preg_match($format,$this->$var) != 1) {
+			$this->add_error($var,isset($options['message'])?$options['message']:"ogiltligt format");
+		}
+	 }
+
+	 /**
+	  * Validates that $var is a date
+	  */
+	 protected function validate_date($var,$options=array()) {
+		if(strtotime($this->$var)==false) {
+			$this->add_error($var,isset($options['message'])?$options['message']:"måste vara ett datum");
+		}
+	 }
+
+
 }
 class UndefinedMemberException extends Exception{}
 class UndefinedFunctionException extends Exception{}
