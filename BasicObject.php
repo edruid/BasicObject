@@ -15,16 +15,7 @@ abstract class BasicObject {
 	 * @return The name of the table this class is associated with.
 	 */
 //	abstract protected static function table_name();
-	/**
-	 * Runs validator hooks for this model
-	 */
-//	abstract protected function validation_hooks();
 
-	/**
-	 * Set this method to return the name of the field to order by if
-	 * nothing else is specified
-	 */
-// abstract protected static function default_order();
 	/**
 	 * Returns the table name associated with this class.
 	 * @return The name of the table this class is associated with.
@@ -340,6 +331,12 @@ abstract class BasicObject {
 	}
 
 	/**
+	 * Set this method to return the name of the field to order by if nothing else is specified
+	 */
+	protected static function default_order() {
+		return null;
+	}
+	/**
 	 * Runs validation hooks. Returns true if this instance validates
 	 * All errors are filled into $errors
 	 */
@@ -356,6 +353,10 @@ abstract class BasicObject {
 		return (count($this->errors) >  0);;
 	}
 
+	/**
+	 * Runs validator hooks for this model
+	 * Override this method to run your validations
+	 */
 	protected function validation_hooks() {}
 	/**
 	 * Returns the Object with object_id = $id.
