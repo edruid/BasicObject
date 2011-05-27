@@ -140,8 +140,8 @@ abstract class BasicObject {
 	 */
 	public function __get($name){
 		if($this->in_table($name, $this->table_name())){
-			if(array_key_exists(strtolower($name), $this->_data)) {
-				$ret = $this->_data[strtolower($name)];
+			if(array_key_exists($name, $this->_data)) {
+				$ret = $this->_data[$name];
 				if(HTML_ACCESS && is_string($ret)) {
 					$ret = htmlspecialchars($ret, ENT_QUOTES, 'utf-8');
 				}
@@ -170,7 +170,7 @@ abstract class BasicObject {
 	 * @returns bool Returns True if the value exists an is not null, false otherwise.
 	 */
 	public function __isset($name) {
-		if(isset($this->_data[strtolower($name)])) {
+		if(isset($this->_data[$name])) {
 			return true;
 		}
 		try{
@@ -793,7 +793,7 @@ abstract class BasicObject {
 		if(!isset($tables[$table])){
 			$tables[$table] = self::columns($table);
 		}
-		return in_array(strtolower($column), $tables[$table]);
+		return in_array($column, $tables[$table]);
 	}
 
 	private static function connection($table1, $table2) {
