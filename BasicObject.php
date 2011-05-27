@@ -85,10 +85,14 @@ abstract class BasicObject {
 			return 'concat(`'.$table_name.'`.`'.implode("`, '¤', `$table_name`.`", $pk).'`)';
 		}
 	}
-	
+
+	/**
+	 * If id or id_name() is set in array the Object is created as the object with that id.
+	 * Otherwise a new object is created (but not saved).
+	 */
 	public function __construct($array = null) {
-		$this->_exists = !empty($array);
 		$this->_data = $array;
+		$this->_exists = !empty($array) && (isset($array['id']) || isset($array[$this->id_name()]));
 	}
 
 	/**
@@ -539,6 +543,13 @@ abstract class BasicObject {
 		$order = array();
 		$user_params = array();
 		$types = self::handle_params($params, $joins, $wheres, $order, $table_name, $limit, $user_params, 'AND');
+
+		if(count($order) == 0 && strpos(strtolower($wheres),'order by') === false) {
+			// Set default order
+			if($class_name::default_order() != null) 
+				$order[] = $class_name::default_order();
+		}
+
 		$query = "SELECT ";
 		switch($select) {
 			case '*':
