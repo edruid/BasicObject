@@ -217,6 +217,9 @@ abstract class BasicObject {
 	private function get_fresh_instance() {
 		$id_name = $this->id_name();
 		if(!is_array($id_name)) {
+			if(!isset($this->id)) {
+				throw new Exception("Primary key is not auto increment and is not set.");
+			}
 			return $this->from_id($this->id);
 		}
 		$params = array();
@@ -294,7 +297,7 @@ abstract class BasicObject {
 			if($db->insert_id) {
 				$object = $this->from_id($db->insert_id);
 			} else {
-				$object = $this->get_fresh_instance();
+				$object = self::get_fresh_instance();
 			}
 			$this->_data = $object->_data;
 		}
@@ -987,4 +990,3 @@ abstract class BasicObject {
 }
 class UndefinedMemberException extends Exception{}
 class UndefinedFunctionException extends Exception{}
-?>
