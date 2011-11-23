@@ -281,7 +281,7 @@ abstract class BasicObject {
 		$stmt = $db->prepare($query);
 		call_user_func_array(array($stmt, 'bind_param'), $params);
 		if(!$stmt->execute()) {
-			throw new Exception("Internal error, failed to execute query:\n<pre>$query\n".$stmt->error.'</pre>');
+			throw new Exception("Internal error, failed to execute query:\n<pre>$query\n".$stmt->error.'</pre>', $stmt->errno);
 		}
 		$stmt->close();
 		if(!isset($this->_exists) || !$this->_exists){
