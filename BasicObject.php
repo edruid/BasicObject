@@ -140,7 +140,7 @@ abstract class BasicObject {
 	 */
 	public function __get($name){
 		if($this->in_table($name, $this->table_name())){
-			if(array_key_exists($name, $this->_data)) {
+			if(isset($this->_data) && array_key_exists($name, $this->_data)) {
 				$ret = $this->_data[$name];
 				if(HTML_ACCESS && is_string($ret)) {
 					$ret = htmlspecialchars($ret, ENT_QUOTES, 'utf-8');
