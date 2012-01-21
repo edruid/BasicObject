@@ -140,7 +140,7 @@ abstract class BasicObject {
 	 */
 	public function __get($name){
 		if($this->in_table($name, $this->table_name())){
-			if(array_key_exists($name, $this->_data)) {
+			if(isset($this->_data) && array_key_exists($name, $this->_data)) {
 				$ret = $this->_data[$name];
 				if(HTML_ACCESS && is_string($ret)) {
 					$ret = htmlspecialchars($ret, ENT_QUOTES, 'utf-8');
@@ -480,9 +480,16 @@ abstract class BasicObject {
 			echo "<pre>$query</pre>";
 			var_dump($data);
 		}
-		$stmt->execute();
-		$stmt->store_result();
+		if($stmt->execute() === false) {
+			throw new Exception("BasicObject: error while executing query: $db->error", $db->errno);
+		}
+		if($stmt->store_result() === false) {
+			throw new Exception("BasicObject: error in store_result: $db->error", $db->errno);
+		}
 		$fields = $stmt->result_metadata();
+		if($fields === false) {
+			throw new Exception("BasicObject: error while fetching result metadata: $db->error", $db->errno);
+		}
 		while($field = $fields->fetch_field()){
 			$result[$field->name] = &$row[$field->name];
 		}
