@@ -4,7 +4,7 @@ class User extends BasicObject {
 		return 'users';
 	}
 
-	protected function default_order() {
+	protected static function default_order() {
 		return 'username'; //Sort by username if nothing else is specified
 	}
 
