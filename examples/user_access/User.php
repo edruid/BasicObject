@@ -4,6 +4,10 @@ class User extends BasicObject {
 		return 'users';
 	}
 
+	protected function default_order() {
+		return 'username'; //Sort by username if nothing else is specified
+	}
+
 	public function has_access($code_name) {
 		// Build an array with paramaters to BasicObject::count.
 		$parameters = array(

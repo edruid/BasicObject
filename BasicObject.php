@@ -189,6 +189,13 @@ abstract class BasicObject {
 	}
 
 	/**
+	 * Set this function to return the name of a column to sort by that if '@order' is not specified
+	 */
+	protected static function default_order() {
+		return null;
+	}
+
+	/**
 	 * Set the value of a field. Use commit() to write to database.
 	 */
 	public function __set($name, $value) {
