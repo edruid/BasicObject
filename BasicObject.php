@@ -84,9 +84,16 @@ abstract class BasicObject {
 			return 'concat(`'.$table_name.'`.`'.implode("`, '¤', `$table_name`.`", $pk).'`)';
 		}
 	}
-	
-	public function __construct($array = null) {
-		$this->_exists = !empty($array);
+
+	/**
+	 * @param $array Assoc array of values to set in this instance
+	 * @param $exists Set to true to mark that this is an existing object, and that commits should use update
+	 */
+	public function __construct($array = null, $exists=false) {
+		if($exists && empty($array)) {
+			throw new Exception("Can't create new instance marked as existing with an empty data array");
+		}
+		$this->_exists = $exists;
 		$this->_data = $array;
 	}
 
@@ -360,7 +367,7 @@ abstract class BasicObject {
 		call_user_func_array(array($stmt, 'bind_result'), $bind_results);
 		$object = null;
 		if($stmt->fetch()) {
-			$object = new static($bind_results);
+			$object = new static($bind_results, true);
 		}
 		$stmt->close();
 		return $object;
@@ -502,7 +509,7 @@ abstract class BasicObject {
 			foreach($result as $key => $value){
 				$tmp[$key] = $value;
 			}
-			$ret[] = new static($tmp);
+			$ret[] = new static($tmp, true);
 		}
 		$stmt->close();
 		return $ret;
