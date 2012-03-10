@@ -139,10 +139,14 @@ abstract class BasicObject {
 	 * a list of objects is returned depending on the direction of the foreign key.
 	 */
 	public function __get($name){
+		global $BasicObject_output_htmlspecialchars;
+		if(!is_bool($BasicObject_output_htmlspecialchars)) {
+			throw new Exception("\$BasicObject_output_htmlspecialchars is not a boolean");
+		}
 		if($this->in_table($name, $this->table_name())){
 			if(isset($this->_data) && array_key_exists($name, $this->_data)) {
 				$ret = $this->_data[$name];
-				if(HTML_ACCESS && is_string($ret)) {
+				if($BasicObject_output_htmlspecialchars && is_string($ret)) {
 					$ret = htmlspecialchars($ret, ENT_QUOTES, 'utf-8');
 				}
 				return $ret;
