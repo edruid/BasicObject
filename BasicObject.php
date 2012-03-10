@@ -64,6 +64,11 @@ abstract class BasicObject {
 			}
 			$stmt->close();
 		}
+
+		if(!array_key_exists($table_name, $column_ids)) {
+			throw new Exception("Could not find primary key for table $table_name");
+		}
+
 		return $column_ids[$table_name];
 	}
 
