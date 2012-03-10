@@ -21,8 +21,7 @@ CREATE TABLE `groups` (
   `group_id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
   PRIMARY KEY (`group_id`),
-  UNIQUE KEY `name` (`name`),
-  KEY `access_id` (`access_id`),
+  UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `accesses` (

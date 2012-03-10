@@ -9,6 +9,8 @@ abstract class BasicObject {
 	protected $_old_key = array();
 	protected $_exists;
 
+	public static $output_htmlspecialchars;
+
 	/**
 	 * Returns the table name associated with this class.
 	 * @return The name of the table this class is associated with.
@@ -156,10 +158,17 @@ abstract class BasicObject {
 	 * a list of objects is returned depending on the direction of the foreign key.
 	 */
 	public function __get($name){
+		if(!is_bool(BasicObject::$output_htmlspecialchars)) {
+			if(defined('HTML_ACCESS') && is_bool(HTML_ACCESS)) {
+				BasicObject::$output_htmlspecialchars = HTML_ACCESS;
+			} else {
+				throw new Exception("Neither BasicObject::output_htmlspecialchars nor HTML_ACCESS is a boolean");
+			}
+		}
 		if($this->in_table($name, $this->table_name())){
 			if(isset($this->_data) && array_key_exists($name, $this->_data)) {
 				$ret = $this->_data[$name];
-				if(HTML_ACCESS && is_string($ret)) {
+				if(BasicObject::$output_htmlspecialchars && is_string($ret)) {
 					$ret = htmlspecialchars($ret, ENT_QUOTES, 'utf-8');
 				}
 				return $ret;
