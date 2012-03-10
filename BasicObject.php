@@ -356,6 +356,13 @@ abstract class BasicObject {
 			$stmt = $db->prepare($query);
 			call_user_func_array(array($stmt, 'bind_param'), $params);
 			$stmt->execute();
+			if($stmt->affected_rows <=  0) {
+				$msg = "Failed to delete object: \n";
+				if(strlen($stmt->error)>0) {
+					$msg.=$stmt->error."\n";
+				}
+				throw new Exception($msg, $stmt->errno);
+			}
 			$stmt->close();
 		}
 		unset($this);
