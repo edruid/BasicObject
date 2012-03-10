@@ -58,15 +58,12 @@ abstract class BasicObject {
 			$stmt->execute();
 			$stmt->store_result();
 			$stmt->bind_result($index);
-			
+
+			$column_ids[$table_name] = array();
 			while($stmt->fetch()) {
 				$column_ids[$table_name][] = $index;
 			}
 			$stmt->close();
-		}
-
-		if(!array_key_exists($table_name, $column_ids)) {
-			throw new Exception("Could not find primary key for table $table_name");
 		}
 
 		return $column_ids[$table_name];
