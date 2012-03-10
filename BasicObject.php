@@ -704,6 +704,36 @@ abstract class BasicObject {
 		return $types;
 	}
 
+	/**
+	 * Update or create an object from an array (often postdata)
+	 * @param $empty_to_null Set to true to replace "" with NULL
+	 */
+	public static function update_attributes($array, $empty_to_null = false) {
+		if($empty_to_null) {
+			foreach($array as $k => $v) {
+				if($v == "")
+					$array[$k] = null;
+			}
+		}
+
+		$obj = new static($array);
+
+		//Change [id] to [id_name] if [id] is set but id_name()!='id'
+		if($obj->id_name() != "id" && isset($obj->_data['id']) && !isset($obj->_data[$obj->id_name()])) {
+			$obj->_data[$obj->id_name()] = $obj->_data['id'];
+			unset($obj->_data['id']);
+		}
+
+		$id = $obj->id;
+
+		if($id!=null && $id!="") {
+			$old_obj = static::from_id($id);
+			$obj->_data = array_merge($old_obj->_data,$obj->_data);
+			$obj->_exists = true; //Mark as existing
+		}
+		return $obj;
+	}
+
 	private static function columns($table){
 		global $db;
 		static $columns = array();
