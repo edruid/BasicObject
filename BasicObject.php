@@ -781,8 +781,7 @@ abstract class BasicObject {
 		if(class_exists($first) && is_subclass_of($first, 'BasicObject')){
 			$first = $first::table_name();
 		}
-		$parent_id = self::id_name($parent);
-		$first_id = self::id_name($first);
+		
 		if(!self::is_table($first)){
 			throw new Exception("No such table '$first'");
 		}
@@ -794,6 +793,8 @@ abstract class BasicObject {
 				'on' => "`{$connection['TABLE_NAME']}`.`{$connection['COLUMN_NAME']}` = `{$connection['REFERENCED_TABLE_NAME']}`.`{$connection['REFERENCED_COLUMN_NAME']}`"
 			);
 		} else {
+			$parent_id = self::id_name($parent);
+			$first_id = self::id_name($first);
 			if(in_array($first_id, $parent_columns)){
 				$joins[$first] = array(
 					"to" => $parent, 
