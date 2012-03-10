@@ -3,7 +3,6 @@ class User extends ValidatingBasicObject {
 
 	protected function validation_hooks() {
 		$this->validate_presence_of('username');
-		$this->validate_uniqueness_of('username');
 	}
 
 	protected static function table_name() {
