@@ -826,6 +826,33 @@ abstract class BasicObject {
 		return in_array($column, $tables[$table]);
 	}
 
+	/**
+	 * Return only the first match of the given query
+	 * Takes the same options as selection
+	 */
+	public static function first($params = array()) {
+		$params['@limit']=1;
+		$sel = static::selection($params);
+		if(isset($sel[0])) {
+			return $sel[0];
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the only object that matches the given query
+	 * If there is more than one match an exception is thrown
+	 */
+	public static function one($params = array()) {
+		$sel = static::selection($params);
+		if(count($sel) <= 1) {
+			return isset($sel[0]) ? $sel[0] : null;
+		} else {
+			throw new Exception("Expected at most one match for query ".print_r($params, true)." but got ".count($sel));
+		}
+	}
+
 	private static function connection($table1, $table2) {
 		global $db;
 		static $data;
