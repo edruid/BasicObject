@@ -540,6 +540,13 @@ abstract class BasicObject {
 		$order = array();
 		$user_params = array();
 		$types = self::handle_params($params, $joins, $wheres, $order, $table_name, $limit, $user_params, 'AND');
+
+		if(count($order) == 0 && strpos(strtolower($wheres),'order by') === false) {
+			// Set default order
+			if(static::default_order() != null) 
+				$order[] = static::default_order();
+		}
+
 		$query = "SELECT ";
 		switch($select) {
 			case '*':
