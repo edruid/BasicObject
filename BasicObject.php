@@ -100,6 +100,14 @@ abstract class BasicObject {
 	}
 
 	/**
+	 * Clone is called on the new object once cloning is complete
+	 */
+	public function __clone() {
+		$this->_exists = false;
+		$this->_data[$this->id_name()]=null;
+	}
+
+	/**
 	 * Returns values in this table or Objects of neighboring tables if there is a foreign key.
 	 * @param array Only alowed when accessing other tables. Extra paramaters for selection
 	 * see selection() for details.

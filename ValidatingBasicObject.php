@@ -116,6 +116,11 @@ class ValidatingBasicObject extends BasicObject {
 		parent::commit();
 	}
 
+	public function __clone() {
+		parent::__clone();
+		$this->errors = array(); //Reset errors
+	}
+
 	/***********
 	 *	Validators
 	 **********/
@@ -269,4 +274,5 @@ class ValidationException extends Exception {
 		$this->errors = $object->errors;
 		$this->message = "Validations failed in $object.\n Errors: ".print_r($this->errors,true);
 	}
+
 }
