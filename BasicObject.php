@@ -142,7 +142,7 @@ abstract class BasicObject {
 	 */
 	public function __get($name){
 		if(!is_bool(BasicObject::$output_htmlspecialchars)) {
-			if(defined('HTML_ACCESS') && is_bool('HTML_ACCESS')) {
+			if(defined('HTML_ACCESS') && is_bool(HTML_ACCESS)) {
 				BasicObject::$output_htmlspecialchars = HTML_ACCESS;
 			} else {
 				throw new Exception("Neither BasicObject::output_htmlspecialchars nor HTML_ACCESS is a boolean");
