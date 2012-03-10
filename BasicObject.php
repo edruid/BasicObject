@@ -964,6 +964,15 @@ abstract class BasicObject {
 		}
 		return $db_name;
 	}
+
+	public function __toString() {
+		$content = array();
+		foreach(self::columns($this->table_name()) as $c) {
+			$v = $this->$c == null ? "NULL":$this->$c;
+			$content[] = $c." => ".$v;
+		}
+		return get_class($this). "{".implode(", ",$content)."}";
+	}
 }
 class UndefinedMemberException extends Exception{}
 class UndefinedFunctionException extends Exception{}
