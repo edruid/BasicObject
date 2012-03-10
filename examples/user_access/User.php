@@ -1,5 +1,11 @@
 <?php
-class User extends BasicObject {
+class User extends ValidatingBasicObject {
+
+	protected function validation_hooks() {
+		$this->validate_presence_of('username');
+		$this->validate_uniqueness_of('username');
+	}
+
 	protected function table_name() {
 		return 'users';
 	}
