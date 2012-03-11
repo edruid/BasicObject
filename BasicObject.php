@@ -737,10 +737,23 @@ abstract class BasicObject {
 
 	/**
 	 * Update or create an object from an array (often postdata)
-	 * @param $empty_to_null Set to true to replace "" with NULL
+	 * By default this method performs commit() on the object before it is returned, but that
+	 * can be turned of (see @param $options)
+	 *
+	 * @param $array An assoc array (for example from postdata) with $field_name=>$value. 
+	 *						If ["id"] or [id_name] is set the model is marked as existing, 
+	 *						otherwise it is treated as a new object.
+	 *
+	 *						Note: To use this method with checkboxes a hidden field with the same name and value
+	 *						0 must exist, otherwise the value will not be changed. This is because the function is
+	 *						build to allow partial updates of a model and loads any missing data from the database.
+	 *
+	 * @param $options An array with options
+	 *						empty_to_null: Set to true to replace all instances of "" with null. (default false)
+	 *						commit: Set to false to not perform commit()
 	 */
-	public static function update_attributes($array, $empty_to_null = false) {
-		if($empty_to_null) {
+	public static function update_attributes($array, $options=array("empty_to_null"=>false, "commit"=>true)) {
+		if(isset($options["empty_to_null"]) && $options["empty_to_null"] == true) {
 			foreach($array as $k => $v) {
 				if($v == "")
 					$array[$k] = null;
@@ -762,6 +775,11 @@ abstract class BasicObject {
 			$obj->_data = array_merge($old_obj->_data,$obj->_data);
 			$obj->_exists = true; //Mark as existing
 		}
+		
+		if(!isset($options["commit"]) || $options["commit"] == true) {
+			$obj->commit();
+		}
+
 		return $obj;
 	}
 
