@@ -769,6 +769,7 @@ abstract class BasicObject {
 			&& !empty($obj->_data['id'])
 			&& !isset($obj->_data[$obj->id_name()])) {
 				$obj->_data[$obj->id_name()] = $obj->_data['id'];
+				unset($obj->_data['id']);
 		} else if($obj->id_name() != "id") {
 			//Prevent errors where the id field has another name and ['id'] is null
 			unset($obj->_data['id']);
