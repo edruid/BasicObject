@@ -763,11 +763,17 @@ abstract class BasicObject {
 		$obj = new static($array);
 
 		//Change [id] to [id_name] if [id] is set but id_name()!='id'
-		if($obj->id_name() != "id" && isset($obj->_data['id']) && !isset($obj->_data[$obj->id_name()])) {
-			$obj->_data[$obj->id_name()] = $obj->_data['id'];
+		if($obj->id_name() != "id" 
+			&& isset($obj->_data['id'])
+			&& !is_null($obj->_data['id'])
+			&& !empty($obj->_data['id'])
+			&& !isset($obj->_data[$obj->id_name()])) {
+				$obj->_data[$obj->id_name()] = $obj->_data['id'];
+		} else if($obj->id_name() != "id") {
+			//Prevent errors where the id field has another name and ['id'] is null
 			unset($obj->_data['id']);
 		}
-
+	
 		$id = $obj->id;
 
 		if($id!=null && $id!="") {
