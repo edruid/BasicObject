@@ -579,6 +579,9 @@ abstract class BasicObject {
 			}
 			if($column[0] == '@'){
 				$column = explode(':', $column);
+				if(count($column)>1) {
+					throw new Exception("Invalid column");
+				}
 				$column = $column[0];
 				// special parameter
 				switch($column){
