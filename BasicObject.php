@@ -579,6 +579,9 @@ abstract class BasicObject {
 			}
 			if($column[0] == '@'){
 				$column = explode(':', $column);
+				if(count($column)>1) {
+					throw new Exception("Invalid column");
+				}
 				$column = $column[0];
 				// special parameter
 				switch($column){
@@ -591,7 +594,7 @@ abstract class BasicObject {
 						}
 						foreach($value as $o){
 							$desc = false;
-							if(substr($o,-5) == ':desc'){
+							if(strtolower(substr($o,-5)) == ':desc'){
 								$desc = true;
 								$o = substr($o, 0,-5);
 							}
