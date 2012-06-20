@@ -5,7 +5,7 @@ class User extends ValidatingBasicObject {
 		$this->validate_presence_of('username');
 	}
 
-	protected function table_name() {
+	protected static function table_name() {
 		return 'users';
 	}
 
