@@ -856,6 +856,8 @@ abstract class BasicObject {
 			);
 			if(!$stmt->fetch()){
 				$data[$table1][$table2] = false;
+			} else if($stmt->num_rows > 1) {
+				throw new Exception("Ambigious database, can't tell which relation between $table1 and $table2 to use. Remove one relation or override __get.");
 			}
 			$stmt->close();
 		}
