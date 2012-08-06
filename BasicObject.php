@@ -851,12 +851,15 @@ abstract class BasicObject {
 					`constraint_type` = 'FOREIGN KEY' and
 					`table_constraints`.`table_schema` = ? AND
 					(
-						`key_column_usage`.`TABLE_NAME` = ? AND
-						`REFERENCED_TABLE_NAME` = ?
-					) OR (
-						`key_column_usage`.`TABLE_NAME` = ? AND
-						`REFERENCED_TABLE_NAME` = ?
-					)");
+						(
+							`key_column_usage`.`TABLE_NAME` = ? AND
+							`REFERENCED_TABLE_NAME` = ?
+						) OR (
+							`key_column_usage`.`TABLE_NAME` = ? AND
+							`REFERENCED_TABLE_NAME` = ?
+						)
+					)
+					");
 			$db_name = self::get_database_name();
 			$stmt->bind_param('sssss', $db_name, $table1, $table2, $table2, $table1);
 			$stmt->execute();
