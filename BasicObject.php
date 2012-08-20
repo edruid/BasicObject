@@ -661,18 +661,31 @@ abstract class BasicObject {
 				}
 				$column = $column[0];
 
+				$function=NULL;
+
+				//Handle functions:
+				if(preg_match("/(.*)\((.*)\)/",$column, $matches)) {
+					$function = $matches[1];
+					$column = $matches[2];
+				}
+
 				// handle column
 				$path = explode('.', $column);
 				if(count($path)>1){
-					$where['column'] = self::fix_join($path, $joins, $columns, $table_name);
+					$where['column'] = '`'.self::fix_join($path, $joins, $columns, $table_name).'`';
 				} else {
 					if(!self::in_table($column, $table_name)){
 						throw new Exception("No such column '$column' in table '$table_name' (value '$value')");
 					}
-					$where['column'] = $table_name.'`.`'.$column;
+					$where['column'] = '`'.$table_name.'`.`'.$column.'`';
 				}
+
+				if($function) {
+					$where['column'] = "$function({$where['column']})";
+				}
+
 				if($where['operator'] == 'in') {
-					$wheres .= "	`{$where['column']}` IN (";
+					$wheres .= "	{$where['column']} IN (";
 					if(!is_array($value)){
 						throw new Exception("Operator 'in' should be coupled with an array of values.");
 					}
@@ -684,12 +697,12 @@ abstract class BasicObject {
 					$wheres = substr($wheres, 0, -2);
 					$wheres .= ") $glue\n";
 				} elseif($where['operator'] == 'null') {
-					$wheres .= "	`".$where["column"]."` IS NULL $glue\n";
+					$wheres .= "	".$where["column"]." IS NULL $glue\n";
 				} elseif($where['operator'] == 'not_null') {
-					$wheres .= "	`".$where["column"]."` IS NOT NULL $glue\n";
+					$wheres .= "	".$where["column"]." IS NOT NULL $glue\n";
 				} else {
 					$user_params[] = $value;
-					$wheres .= "	`".$where["column"]."` ".$where['operator']." ? ".$glue."\n";
+					$wheres .= "	".$where["column"]." ".$where['operator']." ? ".$glue."\n";
 					$types.='s';
 				}
 			}
@@ -838,12 +851,15 @@ abstract class BasicObject {
 					`constraint_type` = 'FOREIGN KEY' and
 					`table_constraints`.`table_schema` = ? AND
 					(
-						`key_column_usage`.`TABLE_NAME` = ? AND
-						`REFERENCED_TABLE_NAME` = ?
-					) OR (
-						`key_column_usage`.`TABLE_NAME` = ? AND
-						`REFERENCED_TABLE_NAME` = ?
-					)");
+						(
+							`key_column_usage`.`TABLE_NAME` = ? AND
+							`REFERENCED_TABLE_NAME` = ?
+						) OR (
+							`key_column_usage`.`TABLE_NAME` = ? AND
+							`REFERENCED_TABLE_NAME` = ?
+						)
+					)
+					");
 			$db_name = self::get_database_name();
 			$stmt->bind_param('sssss', $db_name, $table1, $table2, $table2, $table1);
 			$stmt->execute();
@@ -856,6 +872,8 @@ abstract class BasicObject {
 			);
 			if(!$stmt->fetch()){
 				$data[$table1][$table2] = false;
+			} else if($stmt->num_rows > 1) {
+				throw new Exception("Ambigious database, can't tell which relation between $table1 and $table2 to use. Remove one relation or override __get.");
 			}
 			$stmt->close();
 		}

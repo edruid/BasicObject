@@ -1,6 +1,6 @@
 <?php
 class User extends BasicObject {
-	protected function table_name() {
+	protected static function table_name() {
 		return 'users';
 	}
 
