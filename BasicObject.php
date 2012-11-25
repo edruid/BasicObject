@@ -643,7 +643,7 @@ abstract class BasicObject {
 					case '@and':
 						$where = '';
 						$types .= self::handle_params($value, $joins, $where, $order, $table_name, $limit, $user_params, 'AND');
-						$wheres = "(\n".substr($where, 0, -5)."\n) $glue\n";
+						$wheres .= "(\n".substr($where, 0, -5)."\n) $glue\n";
 						break;
 					default:
 						throw new Exception("No such operator '".substr($column,1)."' (value '$value')");
