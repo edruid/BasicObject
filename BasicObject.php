@@ -2,7 +2,7 @@
 
 /**
  * {@example BasicObjectExample.php}
- */ 
+ */
 abstract class BasicObject {
 
 	protected $_data;
@@ -285,7 +285,9 @@ abstract class BasicObject {
 			}
 		}
 		if(!$change) {
-			// No change to data means no on change hooks in mysql.
+			/**
+			 * No change to data means no on change hooks in mysql.
+			 */
 			return;
 		}
 		$query = substr($query, 0, -2);
