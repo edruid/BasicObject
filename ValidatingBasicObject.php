@@ -189,16 +189,17 @@ class ValidatingBasicObject extends BasicObject {
 	 * options:
 	 *		minimum: Smallest allowed value
 	 *		maximum: Largest allowed value
-	 */	
+	 */
+
 	protected function validate_in_range($var,$options=array()) {
 		if(isset($options['minimum']) && $options['minimum'] > $this->$var) {
          $message = "måste vara minst {$options['minimum']}";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
-		} 
+		}
 		if(isset($options['maximum']) && $options['maximum'] < $this->$var) {
 			$message = "får inte vara större än {$options['maximum']}";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
-		} 
+		}
 	}
 
 
@@ -206,7 +207,7 @@ class ValidatingBasicObject extends BasicObject {
 	 * Validates the format of $var
 	 * The second option is a regular expression to match
 	 * options:
-	 *		message: The error message to show. Default: "ogiltligt format"	
+	 *		message: The error message to show. Default: "ogiltligt format"
 	 *		allow_null: Consider null to be a valid (default: false)
 	 */
 	 protected function validate_format_of($var,$format,$options=array()) {
@@ -252,7 +253,7 @@ class ValidatingBasicObject extends BasicObject {
 	}
 }
 
-/** 
+/**
  * Exception thrown when validations fail
  */
 class ValidationException extends Exception {
