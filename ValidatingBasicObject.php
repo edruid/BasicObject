@@ -157,27 +157,29 @@ class ValidatingBasicObject extends BasicObject {
 	}
 
 	/**
-	 * Validates the lenght of $var 
+	 * Validates the length of $var
 	 * If no options are set no check is made
 	 * If more than one options are set, multiple checks will be made
 	 * options:
-	 *		is: Lenght must be exactly this value	
-	 *		minimum: Lenght must be at least this value
-	 *		maximum: Lenght must be at most this value
-	 */	
-	protected function validate_lenght_of($var,$options=array()) {
-		if(isset($options['is']) && $options['is'] != strlen($this->$var)) {
+	 *		is: Length must be exactly this value
+	 *		minimum: Length must be at least this value
+	 *		maximum: Length must be at most this value
+	 */
+	protected function validate_length_of($var,$options=array()) {
+		$len = strlen($this->$var);
+
+		if(isset($options['is']) && $len != $options['is']) {
 			$message = "måste vara exakt {$options['is']} tecken lång";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
-		} 
-		if(isset($options['minimum']) && $options['minimum'] > strlen($this->$var)) {
+		}
+		if(isset($options['minimum']) && $len < $options['minimum']) {
 			$message = "måste vara minst {$options['minimum']} tecken lång";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
-		} 
-		if(isset($options['maximum']) && $options['maximum'] > strlen($this->$var)) {
+		}
+		if(isset($options['maximum']) && $len > $options['maximum'] ) {
 			$message = "får inte vara längre än {$options['maximum']} tecken";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
-		} 
+		}
 	}
 
 	/**
