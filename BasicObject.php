@@ -764,10 +764,15 @@ abstract class BasicObject {
 	 *						build to allow partial updates of a model and loads any missing data from the database.
 	 *
 	 * @param $options An array with options
-	 *						empty_to_null: Set to true to replace all instances of "" with null. (default false)
-	 *						commit: Set to false to not perform commit()
+	 *						empty_to_null: Set to true to replace all instances of "" with null. (default true)
+	 *						commit: Set to false to not perform commit() (default false)
 	 */
-	public static function update_attributes($array, $options=array("empty_to_null"=>false, "commit"=>true)) {
+	public static function update_attributes($array, $options=array()) {
+		$defaults = array(
+			'empty_to_null' => true,
+			'commit' => false,
+		);
+		$options = array_merge($defaults, $options);
 		if(isset($options["empty_to_null"]) && $options["empty_to_null"] == true) {
 			foreach($array as $k => $v) {
 				if($v == "")
