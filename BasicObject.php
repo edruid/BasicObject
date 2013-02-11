@@ -12,6 +12,18 @@ abstract class BasicObject {
 	public static $output_htmlspecialchars;
 
 	/**
+	 * Runs the callback with a output_htmlspecialchars temporary value set
+	 * and returns the value that the callback returned
+	 */
+	public static function with_tmp_htmlspecialchars($tmp_value, $callback) {
+		$current_value = BasicObject::$output_htmlspecialchars;
+		BasicObject::$output_htmlspecialchars = $tmp_value;
+		$ret = $callback();
+		BasicObject::$output_htmlspecialchars = $current_value;
+		return $ret;
+	}
+
+	/**
 	 * Returns the table name associated with this class.
 	 * @return The name of the table this class is associated with.
 	 */
