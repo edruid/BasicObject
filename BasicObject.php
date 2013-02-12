@@ -47,7 +47,7 @@ abstract class BasicObject {
 	private static function primary_key($class_name = null) {
 		global $db;
 		static $column_ids = array();
-			
+
 		if(class_exists($class_name) && is_subclass_of($class_name, 'BasicObject')){
 			$table_name = $class_name::table_name();
 		} elseif($class_name == null) {
@@ -174,7 +174,7 @@ abstract class BasicObject {
 			if(defined('HTML_ACCESS') && is_bool(HTML_ACCESS)) {
 				BasicObject::$output_htmlspecialchars = HTML_ACCESS;
 			} else {
-				throw new Exception("Neither BasicObject::output_htmlspecialchars nor HTML_ACCESS is a boolean");
+				throw new Exception("Neither BasicObject::$output_htmlspecialchars nor HTML_ACCESS is a boolean");
 			}
 		}
 		if($this->in_table($name, $this->table_name())){
