@@ -174,7 +174,7 @@ abstract class BasicObject {
 			if(defined('HTML_ACCESS') && is_bool(HTML_ACCESS)) {
 				BasicObject::$output_htmlspecialchars = HTML_ACCESS;
 			} else {
-				throw new Exception("Neither BasicObject::$output_htmlspecialchars nor HTML_ACCESS is a boolean");
+				throw new Exception("Neither BasicObject::\$output_htmlspecialchars nor HTML_ACCESS is a boolean");
 			}
 		}
 		if($this->in_table($name, $this->table_name())){
