@@ -17,6 +17,7 @@ abstract class BasicObject {
 	private static $column_ids = array();
 	private static $connection_table = array();
 	private static $tables = array();
+	private static $columns = array();
 
 	public static $output_htmlspecialchars;
 
@@ -97,18 +98,18 @@ abstract class BasicObject {
 	 */
 	public static function enable_structure_cache($memcache) {
 		BasicObject::$memcache = $memcache;
+
 		$stored = BasicObject::$memcache->get("column_ids");
-		if($stored) {
-			BasicObject::$column_ids = unserialize($stored);
-		}
+		if($stored) BasicObject::$column_ids = unserialize($stored);
+
 		$stored = BasicObject::$memcache->get("connection_table");
-		if($stored) {
-			BasicObject::$connection_table = unserialize($stored);
-		}
+		if($stored) BasicObject::$connection_table = unserialize($stored);
+
 		$stored = BasicObject::$memcache->get("tables");
-		if($stored) {
-			BasicObject::$tables = unserialize($stored);
-		}
+		if($stored) BasicObject::$tables = unserialize($stored);
+
+		$stored = BasicObject::$memcache->get("columns");
+		if($stored) BasicObject::$columns = unserialize($stored);
 	}
 
 	public static function clear_structure_cache($memcache) {
@@ -130,6 +131,12 @@ abstract class BasicObject {
 	private static function store_tables() {
 		if(BasicObject::$memcache) {
 			BasicObject::$memcache->set("tables", serialize(BasicObject::$tables), 0, 0); /* No expire */
+		}
+	}
+
+	private static function store_columns() {
+		if(BasicObject::$memcache) {
+			BasicObject::$memcache->set("columns", serialize(BasicObject::$columns), 0, 0); /* No expire */
 		}
 	}
 
@@ -874,8 +881,7 @@ abstract class BasicObject {
 
 	private static function columns($table){
 		global $db;
-		static $columns = array();
-		if(!isset($columns[$table])){
+		if(!isset(BasicObject::$columns[$table])){
 			if(!self::is_table($table)){
 				throw new Exception("No such table '$table'");
 			}
@@ -893,11 +899,12 @@ abstract class BasicObject {
 			$stmt->store_result();
 			$stmt->bind_result($column);
 			while($stmt->fetch()){
-				$columns[$table][] = $column;
+				BasicObject::$columns[$table][] = $column;
 			}
 			$stmt->close();
+			BasicObject::store_columns();
 		}
-		return $columns[$table];
+		return BasicObject::$columns[$table];
 	}
 
 	private static function operator($expr){
