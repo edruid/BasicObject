@@ -10,6 +10,17 @@ abstract class BasicObject {
 	protected $_exists;
 
 	/*
+	 *	[
+	 *		'field' => [
+	 *			value => object
+	 *		]
+	 *	]
+	 */
+	protected static $_from_field_cache = array();
+
+	protected static $_enable_cache = false;
+
+	/*
 	 * Memcache for caching database structure between requests
 	 */
 	private static $memcache = null;
@@ -20,6 +31,18 @@ abstract class BasicObject {
 	private static $columns = array();
 
 	public static $output_htmlspecialchars;
+
+	/*
+	 * Methods for toggling query caching on and off
+	 * Default: Off
+	 */
+	public static function disable_cache() {
+		BasicObject::$_enable_cache = false;
+	}
+
+	public static function enable_cache() {
+		BasicObject::$_enable_cache = true;
+	}
 
 	/**
 	 * Runs the callback with a output_htmlspecialchars temporary value set
@@ -396,6 +419,9 @@ abstract class BasicObject {
 				$object = self::get_fresh_instance();
 			}
 			$this->_data = $object->_data;
+		} else if(BasicObject::$_enable_cache) {
+			//Updated existing object, clear cache
+			self::$_from_field_cache = array();
 		}
 	}
 
@@ -451,6 +477,13 @@ abstract class BasicObject {
 
 	protected static function from_field($field, $value, $type='s'){
 		global $db;
+
+		if(BasicObject::$_enable_cache && isset(self::$_from_field_cache[$field][$value])) {
+			return self::$_from_field_cache[$field][$value];
+		}
+
+		$field_name = $field;
+
 		$table_name = static::table_name(); 
 		if(!self::in_table($field, $table_name)){
 			throw new Exception("No such column '$field' in table '$table_name'");
@@ -474,6 +507,13 @@ abstract class BasicObject {
 			$object = new static($bind_results, true);
 		}
 		$stmt->close();
+
+		if(BasicObject::$_enable_cache) {
+			if(!isset(self::$_from_field_cache[$field_name])) self::$_from_field_cache[$field_name] = array();
+
+			self::$_from_field_cache[$field_name][$value] = $object;
+		}
+
 		return $object;
 	}
 
