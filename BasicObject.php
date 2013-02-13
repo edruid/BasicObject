@@ -565,7 +565,7 @@ abstract class BasicObject {
 
 	/**
 	 * Returns the number of items matching the conditions.
-	 * @param $params Array Se selection for structure of $params.
+	 * @param $params Array See selection for structure of $params.
 	 * @returns Int the number of items matching the conditions.
 	 */
 	public static function count($params = array(), $debug = false){
