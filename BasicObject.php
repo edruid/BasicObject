@@ -90,43 +90,35 @@ abstract class BasicObject {
 		return BasicObject::$column_ids[$table_name];
 	}
 
-	public static function enable_structure_cache($memcache_host, $memcache_port = null) {
-		if($memcache_port == null) $memcache_port = ini_get("memcache.default_port");
-		BasicObject::$memcache = new Memcache();
-		if(BasicObject::$memcache->connect($memcache_host, $memcache_port)) {
-			$stored = BasicObject::$memcache->get("column_ids");
-			if($stored) {
-				BasicObject::$column_ids = unserialize($stored);
-			}
-			$stored = BasicObject::$memcache->get("connection_table");
-			if($stored) {
-				BasicObject::$connection_table = unserialize($stored);
-			}
-		} else {
-			trigger_error("Failed to connect to memcache server", E_USER_WARNING);
-			BasicObject::$memcache = null;
+	/**
+	 * Enables structure cache using the provided Memcache object
+	 * The memcache instance must be connected
+	 */
+	public static function enable_structure_cache($memcache) {
+		BasicObject::$memcache = $memcache;
+		$stored = BasicObject::$memcache->get("column_ids");
+		if($stored) {
+			BasicObject::$column_ids = unserialize($stored);
+		}
+		$stored = BasicObject::$memcache->get("connection_table");
+		if($stored) {
+			BasicObject::$connection_table = unserialize($stored);
 		}
 	}
 
-	public static function clear_structure_cache($memcache_host, $memcache_port = null) {
-		if($memcache_port == null) $memcache_port = ini_get("memcache.default_port");
-		$memcache = new Memcache();
-		if($memcache->connect($memcache_host, $memcache_port)) {
-			$memcache->flush();
-		} else {
-			trigger_error("Failed to connect to memcache server", E_USER_WARNING);
-		}
+	public static function clear_structure_cache($memcache) {
+		$memcache->flush();
 	}
 
 	private static function store_column_ids() {
 		if(BasicObject::$memcache) {
-			BasicObject::$memcache->set("column_ids", serialize(BasicObject::$column_ids));
+			BasicObject::$memcache->set("column_ids", serialize(BasicObject::$column_ids), 0, 0); /* no expire */
 		}
 	}
 
 	private static function store_connection_table() {
 		if(BasicObject::$memcache) {
-			BasicObject::$memcache->set("connection_table", serialize(BasicObject::$connection_table));
+			BasicObject::$memcache->set("connection_table", serialize(BasicObject::$connection_table), 0, 0); /* No expire */
 		}
 	}
 
