@@ -15,6 +15,7 @@ abstract class BasicObject {
 	private static $memcache = null;
 
 	private static $column_ids = array();
+	private static $connection_table = array();
 
 	public static $output_htmlspecialchars;
 
@@ -82,7 +83,7 @@ abstract class BasicObject {
 			while($stmt->fetch()) {
 				BasicObject::$column_ids[$table_name][] = $index;
 			}
-			static::update_structure_cache();
+			static::store_column_ids();
 			$stmt->close();
 		}
 
@@ -96,6 +97,10 @@ abstract class BasicObject {
 			$stored = BasicObject::$memcache->get("column_ids");
 			if($stored) {
 				BasicObject::$column_ids = unserialize($stored);
+			}
+			$stored = BasicObject::$memcache->get("connection_table");
+			if($stored) {
+				BasicObject::$connection_table = unserialize($stored);
 			}
 		} else {
 			trigger_error("Failed to connect to memcache server", E_USER_WARNING);
@@ -113,9 +118,15 @@ abstract class BasicObject {
 		}
 	}
 
-	private static function update_structure_cache() {
+	private static function store_column_ids() {
 		if(BasicObject::$memcache) {
 			BasicObject::$memcache->set("column_ids", serialize(BasicObject::$column_ids));
+		}
+	}
+
+	private static function store_connection_table() {
+		if(BasicObject::$memcache) {
+			BasicObject::$memcache->set("connection_table", serialize(BasicObject::$connection_table));
 		}
 	}
 
@@ -1006,14 +1017,13 @@ abstract class BasicObject {
 
 	private static function connection($table1, $table2) {
 		global $db;
-		static $data;
 		if(strcmp($table1, $table2) < 0){
 			$tmp = $table1;
 			$table1 = $table2;
 			$table2 = $tmp;
 		}
-		if(!isset($data[$table1]) || !isset($data[$table1][$table2])){
-			$data[$table1][$table2] = array();
+		if(!isset(BasicObject::$connection_table[$table1]) || !isset(BasicObject::$connection_table[$table1][$table2])){
+			BasicObject::$connection_table[$table1][$table2] = array();
 			$stmt = $db->prepare("
 				SELECT
 					`key_column_usage`.`TABLE_NAME`,
@@ -1041,19 +1051,21 @@ abstract class BasicObject {
 			$stmt->execute();
 			$stmt->store_result();
 			$stmt->bind_result(
-				$data[$table1][$table2]['TABLE_NAME'],
-				$data[$table1][$table2]['COLUMN_NAME'],
-				$data[$table1][$table2]['REFERENCED_TABLE_NAME'],
-				$data[$table1][$table2]['REFERENCED_COLUMN_NAME']
+				BasicObject::$connection_table[$table1][$table2]['TABLE_NAME'],
+				BasicObject::$connection_table[$table1][$table2]['COLUMN_NAME'],
+				BasicObject::$connection_table[$table1][$table2]['REFERENCED_TABLE_NAME'],
+				BasicObject::$connection_table[$table1][$table2]['REFERENCED_COLUMN_NAME']
 			);
 			if(!$stmt->fetch()){
-				$data[$table1][$table2] = false;
+				BasicObject::$connection_table[$table1][$table2] = false;
 			} else if($stmt->num_rows > 1) {
 				throw new Exception("Ambigious database, can't tell which relation between $table1 and $table2 to use. Remove one relation or override __get.");
 			}
 			$stmt->close();
+
+			BasicObject::store_connection_table();
 		}
-		return $data[$table1][$table2];
+		return BasicObject::$connection_table[$table1][$table2];
 	}
 
 	private static function get_database_name() {
