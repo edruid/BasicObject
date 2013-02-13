@@ -21,6 +21,13 @@ abstract class BasicObject {
 	protected static $_enable_cache = false;
 
 	/*
+	 * [ 'query' => result ]
+	 */
+	protected static $_selection_cache = array();
+	protected static $_count_cache = array();
+	protected static $_sum_cache = array();
+
+	/*
 	 * Memcache for caching database structure between requests
 	 */
 	private static $memcache = null;
@@ -422,6 +429,9 @@ abstract class BasicObject {
 		} else if(BasicObject::$_enable_cache) {
 			//Updated existing object, clear cache
 			self::$_from_field_cache = array();
+			self::$_selection_cache = array();
+			self::$_sum_cache = array();
+			self::$_count_cache = array();
 		}
 	}
 
@@ -520,6 +530,15 @@ abstract class BasicObject {
 	public static function sum($field, $params = array()) {
 		global $db;
 		$data = static::build_query($params, '*');
+
+		$cache_string = null;
+		if(BasicObject::$_enable_cache) {
+			$cache_string = implode(";", $data);
+			if(isset(self::$_sum_cache[$cache_string])) {
+				return self::$_sum_cache[$cache_string];
+			}
+		}
+
 		$query = array_shift($data);
 		$allowed_symbols=array('*', '+', '/', '-', );
 		if(is_array($field)) {
@@ -560,6 +579,11 @@ abstract class BasicObject {
 		$stmt->bind_result($result);
 		$stmt->fetch();
 		$stmt->close();
+
+		if(BasicObject::$_enable_cache) {
+			self::$_sum_cache[$cache_string] = $result;
+		}
+
 		return $result;
 	}
 
@@ -571,6 +595,15 @@ abstract class BasicObject {
 	public static function count($params = array(), $debug = false){
 		global $db;
 		$data = static::build_query($params, 'count');
+
+		$cache_string = null;
+		if(BasicObject::$_enable_cache) {
+			$cache_string = implode(";", $data);
+			if(isset(self::$_count_cache[$cache_string])) {
+				return self::$_count_cache[$cache_string];
+			}
+		}
+
 		$query = array_shift($data);
 		if($debug) {
 			echo "<pre>$query</pre>\n";
@@ -588,6 +621,11 @@ abstract class BasicObject {
 		$stmt->bind_result($result);
 		$stmt->fetch();
 		$stmt->close();
+
+		if(BasicObject::$_enable_cache) {
+			self::$_count_cache[$cache_string] = $result;
+		}
+
 		return $result;
 	}
 
@@ -616,10 +654,19 @@ abstract class BasicObject {
 	public static function selection($params = array(), $debug=false){
 		global $db;
 		$data = self::build_query($params, '*');
+
+		$cache_string = null;
+		if(BasicObject::$_enable_cache) {
+			$cache_string = implode(";", $data);
+			if(isset(self::$_selection_cache[$cache_string])) {
+				return self::$_selection_cache[$cache_string];
+			}
+		}
+
 		$query = array_shift($data);
 		$stmt = $db->prepare($query);
 		if(!$stmt) {
-			throw new Exception("BasicObject: error parcing query: $query\n $db->error");
+			throw new Exception("BasicObject: error parsing query: $query\n $db->error");
 		}
 		foreach($data as $key => $value) {
 			$data[$key] = &$data[$key];
@@ -656,6 +703,11 @@ abstract class BasicObject {
 			$ret[] = new static($tmp, true);
 		}
 		$stmt->close();
+
+		if(BasicObject::$_enable_cache) {
+			self::$_selection_cache[$cache_string] = $ret;
+		}
+
 		return $ret;
 	}
 
