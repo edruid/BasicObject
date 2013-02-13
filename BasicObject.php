@@ -16,6 +16,7 @@ abstract class BasicObject {
 
 	private static $column_ids = array();
 	private static $connection_table = array();
+	private static $tables = array();
 
 	public static $output_htmlspecialchars;
 
@@ -104,6 +105,10 @@ abstract class BasicObject {
 		if($stored) {
 			BasicObject::$connection_table = unserialize($stored);
 		}
+		$stored = BasicObject::$memcache->get("tables");
+		if($stored) {
+			BasicObject::$tables = unserialize($stored);
+		}
 	}
 
 	public static function clear_structure_cache($memcache) {
@@ -119,6 +124,12 @@ abstract class BasicObject {
 	private static function store_connection_table() {
 		if(BasicObject::$memcache) {
 			BasicObject::$memcache->set("connection_table", serialize(BasicObject::$connection_table), 0, 0); /* No expire */
+		}
+	}
+
+	private static function store_tables() {
+		if(BasicObject::$memcache) {
+			BasicObject::$memcache->set("tables", serialize(BasicObject::$tables), 0, 0); /* No expire */
 		}
 	}
 
@@ -973,11 +984,11 @@ abstract class BasicObject {
 	}
 
 	private static function in_table($column, $table){
-		static $tables = array();
-		if(!isset($tables[$table])){
-			$tables[$table] = self::columns($table);
+		if(!isset(BasicObject::$tables[$table])){
+			BasicObject::$tables[$table] = self::columns($table);
+			BasicObject::store_tables();
 		}
-		return in_array($column, $tables[$table]);
+		return in_array($column, BasicObject::$tables[$table]);
 	}
 
 	/**
