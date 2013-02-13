@@ -9,6 +9,13 @@ abstract class BasicObject {
 	protected $_old_key = array();
 	protected $_exists;
 
+	/*
+	 * Memcache for caching database structure between requests
+	 */
+	private static $memcache = null;
+
+	private static $column_ids = array();
+
 	public static $output_htmlspecialchars;
 
 	/**
@@ -46,8 +53,6 @@ abstract class BasicObject {
 
 	private static function primary_key($class_name = null) {
 		global $db;
-		static $column_ids = array();
-
 		if(class_exists($class_name) && is_subclass_of($class_name, 'BasicObject')){
 			$table_name = $class_name::table_name();
 		} elseif($class_name == null) {
@@ -55,7 +60,7 @@ abstract class BasicObject {
 		} else {
 			$table_name = $class_name;
 		}
-		if(!array_key_exists($table_name, $column_ids)){
+		if(!array_key_exists($table_name, BasicObject::$column_ids)){
 			$stmt = $db->prepare("
 				SELECT
 					`COLUMN_NAME`
@@ -73,14 +78,45 @@ abstract class BasicObject {
 			$stmt->store_result();
 			$stmt->bind_result($index);
 
-			$column_ids[$table_name] = array();
+			BasicObject::$column_ids[$table_name] = array();
 			while($stmt->fetch()) {
-				$column_ids[$table_name][] = $index;
+				BasicObject::$column_ids[$table_name][] = $index;
 			}
+			static::update_structure_cache();
 			$stmt->close();
 		}
 
-		return $column_ids[$table_name];
+		return BasicObject::$column_ids[$table_name];
+	}
+
+	public static function enable_structure_cache($memcache_host, $memcache_port = null) {
+		if($memcache_port == null) $memcache_port = ini_get("memcache.default_port");
+		BasicObject::$memcache = new Memcache();
+		if(BasicObject::$memcache->connect($memcache_host, $memcache_port)) {
+			$stored = BasicObject::$memcache->get("column_ids");
+			if($stored) {
+				BasicObject::$column_ids = unserialize($stored);
+			}
+		} else {
+			trigger_error("Failed to connect to memcache server", E_USER_WARNING);
+			BasicObject::$memcache = null;
+		}
+	}
+
+	public static function clear_structure_cache($memcache_host, $memcache_port = null) {
+		if($memcache_port == null) $memcache_port = ini_get("memcache.default_port");
+		$memcache = new Memcache();
+		if($memcache->connect($memcache_host, $memcache_port)) {
+			$memcache->flush();
+		} else {
+			trigger_error("Failed to connect to memcache server", E_USER_WARNING);
+		}
+	}
+
+	private static function update_structure_cache() {
+		if(BasicObject::$memcache) {
+			BasicObject::$memcache->set("column_ids", serialize(BasicObject::$column_ids));
+		}
 	}
 
 	private static function unique_identifier($class_name = null) {
