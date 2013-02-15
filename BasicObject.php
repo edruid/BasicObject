@@ -426,8 +426,10 @@ abstract class BasicObject {
 				$object = self::get_fresh_instance();
 			}
 			$this->_data = $object->_data;
-		} else if(BasicObject::$_enable_cache) {
-			//Updated existing object, clear cache
+		}
+
+		//Clear cache
+		if(BasicObject::$_enable_cache) {
 			self::$_from_field_cache = array();
 			self::$_selection_cache = array();
 			self::$_sum_cache = array();
