@@ -36,7 +36,7 @@ abstract class BasicObject {
 
 	private static $column_ids = array();
 	private static $connection_table = array();
-	private static $tables = array();
+	private static $tables = null;
 	private static $columns = array();
 
 	public static $output_htmlspecialchars;
@@ -1028,8 +1028,9 @@ abstract class BasicObject {
 
 	private static function is_table($table){
 		global $db;
-		static $tables;
-		if(!isset($tables)){
+		if(!isset(BasicObject::$tables)){
+			BasicObject::$tables = array();
+
 			$db_name = static::get_database_name();
 			$stmt = $db->prepare("
 				SELECT `table_name`
@@ -1041,11 +1042,12 @@ abstract class BasicObject {
 			$stmt->store_result();
 			$stmt->bind_result($table_);
 			while($stmt->fetch()){
-				$tables[] = strtolower($table_);
+				BasicObject::$tables[] = strtolower($table_);
 			}
 			$stmt->close();
+			BasicObject::store_tables();
 		}
-		return in_array(strtolower($table), $tables);
+		return in_array(strtolower($table), BasicObject::$tables);
 	}
 
 	private static function fix_join($path, &$joins, $parent_columns, $parent){
@@ -1091,11 +1093,7 @@ abstract class BasicObject {
 	}
 
 	private static function in_table($column, $table){
-		if(!isset(BasicObject::$tables[$table])){
-			BasicObject::$tables[$table] = self::columns($table);
-			BasicObject::store_tables();
-		}
-		return in_array($column, BasicObject::$tables[$table]);
+		return in_array($column, self::columns($table));
 	}
 
 	/**
