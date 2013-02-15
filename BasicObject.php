@@ -493,7 +493,7 @@ abstract class BasicObject {
 	 * @return Object The Object specified by $id.
 	 */
 	public static function from_id($id){
-		$id_name = static::id_name(); 
+		$id_name = static::id_name();
 		return static::from_field($id_name, $id);
 	}
 
@@ -508,7 +508,7 @@ abstract class BasicObject {
 
 		$field_name = $field;
 
-		$table_name = static::table_name(); 
+		$table_name = static::table_name();
 		if(!self::in_table($field, $table_name)){
 			throw new Exception("No such column '$field' in table '$table_name'");
 		}
@@ -575,7 +575,7 @@ abstract class BasicObject {
 					throw new Exception("No such column '$f' in table '".static::table_name()."'");
 				}
 				$exp .= "`$f`";
-			}	
+			}
 			$query = "SELECT SUM($exp) FROM ($query) q";
 		} else {
 			if(!self::in_table($field, static::table_name())){
@@ -739,8 +739,8 @@ abstract class BasicObject {
 	}
 
 	private static function build_query($params, $select){
-		$table_name = static::table_name(); 
-		$id_name = static::id_name(); 
+		$table_name = static::table_name();
+		$id_name = static::id_name();
 		$joins = array();
 		$wheres = '';
 		$order = array();
@@ -749,7 +749,7 @@ abstract class BasicObject {
 
 		if(count($order) == 0 && strpos(strtolower($wheres),'order by') === false) {
 			// Set default order
-			if(static::default_order() != null) 
+			if(static::default_order() != null)
 				$order[] = static::default_order();
 		}
 
@@ -764,7 +764,7 @@ abstract class BasicObject {
 				$group = "";
 				break;
 		}
-		$query .= 
+		$query .=
 			"FROM\n".
 			"	`".$table_name."`";
 		foreach($joins as $table => $join){
@@ -979,8 +979,8 @@ abstract class BasicObject {
 	 * By default this method performs commit() on the object before it is returned, but that
 	 * can be turned of (see @param $options)
 	 *
-	 * @param $array An assoc array (for example from postdata) with $field_name=>$value. 
-	 *						If ["id"] or [id_name] is set the model is marked as existing, 
+	 * @param $array An assoc array (for example from postdata) with $field_name=>$value.
+	 *						If ["id"] or [id_name] is set the model is marked as existing,
 	 *						otherwise it is treated as a new object.
 	 *
 	 *						Note: To use this method with checkboxes a hidden field with the same name and value
@@ -1007,7 +1007,7 @@ abstract class BasicObject {
 		$obj = new static($array);
 
 		//Change [id] to [id_name] if [id] is set but id_name()!='id'
-		if($obj->id_name() != "id" 
+		if($obj->id_name() != "id"
 			&& isset($obj->_data['id'])
 			&& !is_null($obj->_data['id'])
 			&& !empty($obj->_data['id'])
@@ -1018,7 +1018,7 @@ abstract class BasicObject {
 			//Prevent errors where the id field has another name and ['id'] is null
 			unset($obj->_data['id']);
 		}
-	
+
 		$id = $obj->id;
 
 		if($id!=null && $id!="") {
@@ -1026,7 +1026,7 @@ abstract class BasicObject {
 			$obj->_data = array_merge($old_obj->_data,$obj->_data);
 			$obj->_exists = true; //Mark as existing
 		}
-		
+
 		if(!isset($options["commit"]) || $options["commit"] == true) {
 			$obj->commit();
 		}
@@ -1146,7 +1146,7 @@ abstract class BasicObject {
 			$key = array_shift($path);
 			if(!in_array($key, $columns)){
 				throw new Exception("No such column '$key' in table '$first'");
-			} 
+			}
 			return $first.'`.`'.$key;
 		} else {
 			return self::fix_join($path, $joins, $columns, $first);
@@ -1199,7 +1199,7 @@ abstract class BasicObject {
 					`COLUMN_NAME`,
 					`REFERENCED_TABLE_NAME`,
 					`REFERENCED_COLUMN_NAME`
-				FROM 
+				FROM
 					`information_schema`.`table_constraints` join
 					`information_schema`.`key_column_usage` using (`CONSTRAINT_NAME`, `CONSTRAINT_SCHEMA`)
 				WHERE
