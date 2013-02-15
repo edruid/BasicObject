@@ -217,11 +217,21 @@ abstract class BasicObject {
 	}
 
 	/**
-	 * Clone is called on the new object once cloning is complete
+	 * Creates a duplicate with all the attributes from this instance, but with id set to null, and exist set to false
+	 */
+	public function duplicate() {
+		$dup = clone $this;
+		$dup->_exists = false;
+		$dup->_data[$this->id_name()]=null;
+		return $dup;
+	}
+
+	/**
+	 * Called after a clone is completed.
+	 * Don't do anything, but with this one undefined __call get called instead
 	 */
 	public function __clone() {
-		$this->_exists = false;
-		$this->_data[$this->id_name()]=null;
+
 	}
 
 	/**
@@ -373,6 +383,19 @@ abstract class BasicObject {
 		return array_shift($ret);
 	}
 
+	private static function cache_clone(&$obj) {
+		if(is_array($obj)) {
+			$ret = array();
+			foreach($obj as $k=>$v) {
+				$ret[$k] = clone $v;
+			}
+		} else if($obj != null) {
+			return clone $obj;
+		} else {
+			return null;
+		}
+	}
+
 	/**
 	 * Commits all fields to database. If this object was created with "new Object()" a new row
 	 * will be created in the table and this object will atempt to update itself with automagic values.
@@ -503,7 +526,7 @@ abstract class BasicObject {
 		static::validate_cache();
 
 		if(BasicObject::$_enable_cache && isset(static::$_from_field_cache[$field][$value])) {
-			return static::$_from_field_cache[$field][$value];
+			return self::cache_clone(static::$_from_field_cache[$field][$value]);
 		}
 
 		$field_name = $field;
@@ -535,7 +558,7 @@ abstract class BasicObject {
 		if(BasicObject::$_enable_cache) {
 			if(!isset(static::$_from_field_cache[$field_name])) static::$_from_field_cache[$field_name] = array();
 
-			static::$_from_field_cache[$field_name][$value] = $object;
+			static::$_from_field_cache[$field_name][$value] = self::cache_clone($object);
 		}
 
 		return $object;
@@ -686,7 +709,7 @@ abstract class BasicObject {
 		if(BasicObject::$_enable_cache) {
 			$cache_string = implode(";", $data);
 			if(isset(static::$_selection_cache[$cache_string])) {
-				return static::$_selection_cache[$cache_string];
+				return self::cache_clone( static::$_selection_cache[$cache_string]);
 			}
 		}
 
@@ -732,7 +755,7 @@ abstract class BasicObject {
 		$stmt->close();
 
 		if(BasicObject::$_enable_cache) {
-			static::$_selection_cache[$cache_string] = $ret;
+			static::$_selection_cache[$cache_string] = self::cache_clone($ret);
 		}
 
 		return $ret;
