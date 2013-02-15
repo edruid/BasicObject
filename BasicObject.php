@@ -654,7 +654,16 @@ abstract class BasicObject {
 	 *     '@and' => array([<params>]),
 	 *     '@order' => array(<<order-column>> [, <<order-column>> ...]) | <<order-column>>,
 	 *     '@limit' => array(<<limit>> [, <<limit>>]),
+	 *     '@join[:<<join-type>>]' => array(
+	 *                '<<table>>[:<<operator>>]' => <<condition>> ,
+	 *								...
+	 *			)
 	 *   )
+	 *
+	 * Joins: <<join-type>>: The join type (eg. LEFT,RIGHT OUTER etc)
+	 * This produces the join " <<join-type>> JOIN <<table>> <<operator>> <<condition>>
+	 * Operator can be 'on' or 'using'
+	 *
 	 * @returns Array An array of Objects.
 	 */
 	public static function selection($params = array(), $debug=false){
@@ -749,7 +758,9 @@ abstract class BasicObject {
 			"FROM\n".
 			"	`".$table_name."`";
 		foreach($joins as $table => $join){
-			$query .= " JOIN\n";
+			$type = isset($join['type']) ? $join['type'] : "";
+			$query .= " $type JOIN\n";
+
 			if(isset($join['using'])){
 				$query .= "	`".$table."` USING (`".$join['using']."`)";
 			} else {
@@ -787,8 +798,8 @@ abstract class BasicObject {
 				$value = $value['value'];
 			}
 			if($column[0] == '@'){
-				$column = explode(':', $column);
-				$column = $column[0];
+				$column_split = explode(':', $column);
+				$column = $column_split[0];
 				// special parameter
 				switch($column){
 					case '@custom_order':
@@ -853,6 +864,40 @@ abstract class BasicObject {
 						$where = '';
 						$types .= self::handle_params($value, $joins, $where, $order, $table_name, $limit, $user_params, 'AND');
 						$wheres .= "(\n".substr($where, 0, -5)."\n) $glue\n";
+						break;
+					case '@join':
+
+						if(count($column_split) > 1) {
+							$join_type = $column_split[1];
+						} else {
+							$join_type = null;
+						}
+
+						if(!is_array($value)) {
+							throw new Exception("Join must be array");
+						}
+						foreach($value as $table => $condition) {
+							$table = explode(':', $table);
+							if(count($table) > 1) {
+								$operator = strtolower($table[1]);
+								if(! ($operator == "on" || $operator == "using") ) {
+									throw new Exception("Join operator must be 'on' or 'using'");
+								}
+							} else {
+								$operator = "on";
+							}
+							$table = $table[0];
+
+							$join = array(
+								$operator => $condition,
+								'to' => static::table_name()
+							);
+							if($join_type != null) {
+								$join['type'] = $join_type;
+							}
+
+							$joins[$table] = $join;
+						}
 						break;
 					default:
 						throw new Exception("No such operator '".substr($column,1)."' (value '$value')");
@@ -1052,35 +1097,41 @@ abstract class BasicObject {
 
 	private static function fix_join($path, &$joins, $parent_columns, $parent){
 		$first = array_shift($path);
+
 		if(class_exists($first) && is_subclass_of($first, 'BasicObject')){
 			$first = $first::table_name();
 		}
-		
+
 		if(!self::is_table($first)){
 			throw new Exception("No such table '$first'");
 		}
-		$connection = self::connection($first, $parent);
+
 		$columns = self::columns($first);
-		if($connection){
-			$joins[$first] = array(
-				'to' => $parent,
-				'on' => "`{$connection['TABLE_NAME']}`.`{$connection['COLUMN_NAME']}` = `{$connection['REFERENCED_TABLE_NAME']}`.`{$connection['REFERENCED_COLUMN_NAME']}`"
-			);
-		} else {
-			$parent_id = self::id_name($parent);
-			$first_id = self::id_name($first);
-			if(in_array($first_id, $parent_columns)){
+
+		if(!isset($joins[$first])) {
+			$connection = self::connection($first, $parent);
+			if($connection){
 				$joins[$first] = array(
-					"to" => $parent, 
-					"on" => "`$parent`.`$first_id` = `$first`.`$first_id`");
-			} elseif(in_array($parent_id, $columns)) {
-				$joins[$first] = array(
-					"to" => $parent,
-					"on" => "`$parent`.`$parent_id` = `$first`.`$parent_id`");
+					'to' => $parent,
+					'on' => "`{$connection['TABLE_NAME']}`.`{$connection['COLUMN_NAME']}` = `{$connection['REFERENCED_TABLE_NAME']}`.`{$connection['REFERENCED_COLUMN_NAME']}`"
+				);
 			} else {
-				throw new Exception("No connection from '$parent' to table '$first'");
+				$parent_id = self::id_name($parent);
+				$first_id = self::id_name($first);
+				if(in_array($first_id, $parent_columns)){
+					$joins[$first] = array(
+						"to" => $parent,
+						"on" => "`$parent`.`$first_id` = `$first`.`$first_id`");
+				} elseif(in_array($parent_id, $columns)) {
+					$joins[$first] = array(
+						"to" => $parent,
+						"on" => "`$parent`.`$parent_id` = `$first`.`$parent_id`");
+				} else {
+					throw new Exception("No connection from '$parent' to table '$first'");
+				}
 			}
 		}
+
 		if(count($path) == 1) {
 			$key = array_shift($path);
 			if(!in_array($key, $columns)){
