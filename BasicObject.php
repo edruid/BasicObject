@@ -202,6 +202,16 @@ abstract class BasicObject {
 		if($exists && empty($array)) {
 			throw new Exception("Can't create new instance marked as existing with an empty data array");
 		}
+		$columns = self::columns(static::table_name());
+
+		if(is_array($array)) {
+			foreach($array as $key => $value) {
+				if(!in_array($key, $columns)) {
+					unset($array[$key]);
+				}
+			}
+		}
+
 		$this->_exists = $exists;
 		$this->_data = $array;
 	}
