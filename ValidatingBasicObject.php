@@ -191,11 +191,11 @@ class ValidatingBasicObject extends BasicObject {
 	 *		maximum: Largest allowed value
 	 */
 	protected function validate_in_range($var,$options=array()) {
-		if(isset($options['minimum']) && $options['minimum'] >= $this->$var) {
+		if(isset($options['minimum']) && $options['minimum'] > $this->$var ) {
 			$message = "måste vara minst {$options['minimum']}";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
 		}
-		if(isset($options['maximum']) && $options['maximum'] <= $this->$var) {
+		if(isset($options['maximum']) && $options['maximum'] < $this->$var) {
 			$message = "får inte vara större än {$options['maximum']}";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
 		}
