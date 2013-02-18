@@ -206,7 +206,7 @@ abstract class BasicObject {
 
 		if(is_array($array)) {
 			foreach($array as $key => $value) {
-				if(!in_array($key, $columns)) {
+				if($key != "id" && !in_array($key, $columns)) {
 					unset($array[$key]);
 				}
 			}
