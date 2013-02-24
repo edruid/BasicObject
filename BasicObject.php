@@ -234,6 +234,13 @@ abstract class BasicObject {
 		return array_shift($ret);
 	}
 
+	private static function changed($old, $cur){
+		if ( $old != $cur ) return true;
+		if ( $old === null && $cur !== null ) return true;
+		if ( $old !== null && $cur === null ) return true;
+		return false;
+	}
+
 	/**
 	 * Commits all fields to database. If this object was created with "new Object()" a new row
 	 * will be created in the table and this object will atempt to update itself with automagic values.
@@ -252,14 +259,23 @@ abstract class BasicObject {
 		$types = '';
 		$params = array(&$types);
 		$change = false;
+
 		foreach($this->_data as $column => $value){
-			if(!isset($old_object) || $old_object->_data[$column] != $value) {
+			if(!isset($old_object) || static::changed($old_object->_data[$column], $value) ) {
+				$change = true;
+
+				/* handle null values */
+				if ( $value === null ){
+					$query .= "	`$column` = NULL,\n";
+					continue;
+				}
+
 				$params[] = &$this->_data[$column];
 				$query .= "	`$column` = ?,\n";
 				$types .= 's';
-				$change = true;
 			}
 		}
+
 		if(!$change) {
 			// No change to data means no on change hooks in mysql.
 			return;
