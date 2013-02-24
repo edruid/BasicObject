@@ -122,7 +122,7 @@ abstract class BasicObject {
 				}
 			}
 		}
-		if(count($arguments) == 0){
+		if(count($arguments) == 0 && $name != 'table_name'){
 			try{
 				return $this->__get($name);
 			} catch(UndefinedMemberException $e) {
