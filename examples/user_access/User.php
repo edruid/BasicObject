@@ -1,7 +1,16 @@
 <?php
-class User extends BasicObject {
+class User extends ValidatingBasicObject {
+
+	protected function validation_hooks() {
+		$this->validate_presence_of('username');
+	}
+
 	protected static function table_name() {
 		return 'users';
+	}
+
+	protected static function default_order() {
+		return 'username'; //Sort by username if nothing else is specified
 	}
 
 	public function has_access($code_name) {
