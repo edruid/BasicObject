@@ -394,6 +394,7 @@ abstract class BasicObject {
 		} else {
 			return null;
 		}
+	}
 
 	private static function changed($old, $cur){
 		if ( $old != $cur ) return true;
