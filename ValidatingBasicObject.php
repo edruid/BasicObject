@@ -2,11 +2,11 @@
 /**
  * This is a variant of basic object that has validations.
  *
- * Validations are added to the model by implementing 
+ * Validations are added to the model by implementing
  * protected function validation_hooks() (void)
- * 
+ *
  * In this function you can either use predefined validations by calling
- * $this->predefined_validation_name('column_name') (see below) 
+ * $this->predefined_validation_name('column_name') (see below)
  * or by creating your own validations.
  *
  * To indicate an error call $this->add_error($variable_name,$error_msg)
@@ -35,11 +35,11 @@
  *
  * validate_lenght_of($var)
  *
- * Validates the lenght of $var 
+ * Validates the lenght of $var
  * If no options are set no check is made
  * If more than one options are set, multiple checks will be made
  * options:
- *		is: Lenght must be exactly this value	
+ *		is: Lenght must be exactly this value
  *		minimum: Lenght must be at least this value
  *		maximum: Lenght must be at most this value
  * ------------------------
@@ -103,7 +103,7 @@ class ValidatingBasicObject extends BasicObject {
 	protected function validation_hooks() {}
 
 	public function add_error($var, $msg) {
-		//if(!isset($this->errors[$var])) 
+		//if(!isset($this->errors[$var]))
 			//$this->errors[$var] = array();
 		$this->errors[$var][] = $msg;
 	}
@@ -145,11 +145,11 @@ class ValidatingBasicObject extends BasicObject {
 		if(isset($options['allow_null']) && $options['allow_null'] && $this->$var == null)
 			return;
 
-		if(isset($options['only_integers']) && $options['only_integers']) { 
+		if(isset($options['only_integers']) && $options['only_integers']) {
 			if(!is_numeric($this->$var) || preg_match('/\A[+-]?\d+\Z/',$this->$var)!=1) {
 				$message = "måste vara ett heltal";
 				$this->add_error($var,isset($options['message'])?$options['message']:$message);
-			}		
+			}
 		} else if(!is_numeric($this->$var)){
 			$message = "måste vara ett nummer";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
@@ -190,13 +190,15 @@ class ValidatingBasicObject extends BasicObject {
 	 *		minimum: Smallest allowed value
 	 *		maximum: Largest allowed value
 	 */
-
 	protected function validate_in_range($var,$options=array()) {
-		if(isset($options['minimum']) && $options['minimum'] >= $this->$var) {
-         $message = "måste vara minst {$options['minimum']}";
+		if ( isset($options['min']) ) $options['minimum'] = $options['min'];
+		if ( isset($options['max']) ) $options['maximum'] = $options['max'];
+
+		if(isset($options['minimum']) && $options['minimum'] > $this->$var ) {
+			$message = "måste vara minst {$options['minimum']}";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
 		}
-		if(isset($options['maximum']) && $options['maximum'] <= $this->$var) {
+		if(isset($options['maximum']) && $options['maximum'] < $this->$var) {
 			$message = "får inte vara större än {$options['maximum']}";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
 		}
