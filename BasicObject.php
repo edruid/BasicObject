@@ -590,8 +590,8 @@ abstract class BasicObject {
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
 			$cache_string = implode(";", $data);
-			if(isset(static::$_sum_cache[$cache_string])) {
-				return static::$_sum_cache[$cache_string];
+			if(isset(BasicObject::$_sum_cache[$cache_string])) {
+				return BasicObject::$_sum_cache[$cache_string];
 			}
 		}
 
@@ -637,7 +637,7 @@ abstract class BasicObject {
 		$stmt->close();
 
 		if(BasicObject::$_enable_cache) {
-			static::$_sum_cache[$cache_string] = $result;
+			BasicObject::$_sum_cache[$cache_string] = $result;
 		}
 
 		return $result;
@@ -655,8 +655,8 @@ abstract class BasicObject {
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
 			$cache_string = implode(";", $data);
-			if(isset(static::$_count_cache[$cache_string])) {
-				return static::$_count_cache[$cache_string];
+			if(isset(BasicObject::$_count_cache[$cache_string])) {
+				return BasicObject::$_count_cache[$cache_string];
 			}
 		}
 
@@ -679,7 +679,7 @@ abstract class BasicObject {
 		$stmt->close();
 
 		if(BasicObject::$_enable_cache) {
-			static::$_count_cache[$cache_string] = $result;
+			BasicObject::$_count_cache[$cache_string] = $result;
 		}
 
 		return $result;
@@ -725,8 +725,8 @@ abstract class BasicObject {
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
 			$cache_string = implode(";", $data);
-			if(isset(static::$_selection_cache[$cache_string])) {
-				return self::cache_clone( static::$_selection_cache[$cache_string]);
+			if(isset(BasicObject::$_selection_cache[$cache_string])) {
+				return self::cache_clone( BasicObject::$_selection_cache[$cache_string]);
 			}
 		}
 
@@ -772,7 +772,7 @@ abstract class BasicObject {
 		$stmt->close();
 
 		if(BasicObject::$_enable_cache) {
-			static::$_selection_cache[$cache_string] = self::cache_clone($ret);
+			BasicObject::$_selection_cache[$cache_string] = self::cache_clone($ret);
 		}
 
 		return $ret;
@@ -1301,12 +1301,12 @@ abstract class BasicObject {
 	}
 
 	protected static function validate_cache() {
-		if(BasicObject::$_enable_cache && BasicObject::$_global_cache_revision > static::$_local_cache_revision) {
+		if(BasicObject::$_enable_cache && BasicObject::$_global_cache_revision > BasicObject::$_local_cache_revision) {
 			BasicObject::$_from_field_cache = array();
-			static::$_selection_cache = array();
-			static::$_sum_cache = array();
-			static::$_count_cache = array();
-			static::$_local_cache_revision = BasicObject::$_global_cache_revision;
+			BasicObject::$_selection_cache = array();
+			BasicObject::$_sum_cache = array();
+			BasicObject::$_count_cache = array();
+			BasicObject::$_local_cache_revision = BasicObject::$_global_cache_revision;
 		}
 	}
 }
