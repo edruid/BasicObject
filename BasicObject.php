@@ -9,8 +9,6 @@ abstract class BasicObject {
 	protected $_old_key = array();
 	protected $_exists;
 
-	protected static $_global_cache_revision = 0;
-	protected static $_local_cache_revision = 0;
 	/*
 	 *	[
 	 *		'table:field' => [
@@ -54,7 +52,10 @@ abstract class BasicObject {
 	}
 
 	public static function invalidate_cache() {
-		++BasicObject::$_global_cache_revision;
+		BasicObject::$_from_field_cache = array();
+		BasicObject::$_selection_cache = array();
+		BasicObject::$_sum_cache = array();
+		BasicObject::$_count_cache = array();
 	}
 
 	/**
@@ -544,7 +545,6 @@ abstract class BasicObject {
 		$cache_key = "$table_name:$field_name";
 
 		/* test if a cached result exists */
-		static::validate_cache();
 		if(BasicObject::$_enable_cache && isset(BasicObject::$_from_field_cache[$cache_key][$value])){
 			return self::cache_clone(BasicObject::$_from_field_cache[$cache_key][$value]);
 		}
@@ -584,8 +584,6 @@ abstract class BasicObject {
 	public static function sum($field, $params = array()) {
 		global $db;
 		$data = static::build_query($params, '*');
-
-		static::validate_cache();
 
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
@@ -719,8 +717,6 @@ abstract class BasicObject {
 	public static function selection($params = array(), $debug=false){
 		global $db;
 		$data = self::build_query($params, '*');
-
-		static::validate_cache();
 
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
@@ -1299,16 +1295,7 @@ abstract class BasicObject {
 		}
 		return get_class($this). "{".implode(", ",$content)."}";
 	}
-
-	protected static function validate_cache() {
-		if(BasicObject::$_enable_cache && BasicObject::$_global_cache_revision > BasicObject::$_local_cache_revision) {
-			BasicObject::$_from_field_cache = array();
-			BasicObject::$_selection_cache = array();
-			BasicObject::$_sum_cache = array();
-			BasicObject::$_count_cache = array();
-			BasicObject::$_local_cache_revision = BasicObject::$_global_cache_revision;
-		}
-	}
 }
+
 class UndefinedMemberException extends Exception{}
 class UndefinedFunctionException extends Exception{}
