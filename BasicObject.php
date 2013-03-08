@@ -13,7 +13,7 @@ abstract class BasicObject {
 	protected static $_local_cache_revision = 0;
 	/*
 	 *	[
-	 *		'field' => [
+	 *		'table:field' => [
 	 *			value => object
 	 *		]
 	 *	]
@@ -539,15 +539,16 @@ abstract class BasicObject {
 	protected static function from_field($field, $value, $type='s'){
 		global $db;
 
-		static::validate_cache();
+		$field_name = $field;
+		$table_name = static::table_name();
+		$cache_key = "$table_name:$field_name";
 
-		if(BasicObject::$_enable_cache && isset(static::$_from_field_cache[$field][$value])) {
-			return self::cache_clone(static::$_from_field_cache[$field][$value]);
+		/* test if a cached result exists */
+		static::validate_cache();
+		if(BasicObject::$_enable_cache && isset(BasicObject::$_from_field_cache[$cache_key][$value])){
+			return self::cache_clone(BasicObject::$_from_field_cache[$cache_key][$value]);
 		}
 
-		$field_name = $field;
-
-		$table_name = static::table_name();
 		if(!self::in_table($field, $table_name)){
 			throw new Exception("No such column '$field' in table '$table_name'");
 		}
@@ -571,10 +572,10 @@ abstract class BasicObject {
 		}
 		$stmt->close();
 
-		if(BasicObject::$_enable_cache) {
-			if(!isset(static::$_from_field_cache[$field_name])) static::$_from_field_cache[$field_name] = array();
-
-			static::$_from_field_cache[$field_name][$value] = self::cache_clone($object);
+		/* store result in cache */
+		if(BasicObject::$_enable_cache){
+			if(!isset(BasicObject::$_from_field_cache[$cache_key])) BasicObject::$_from_field_cache[$cache_key] = array();
+			BasicObject::$_from_field_cache[$cache_key][$value] = self::cache_clone($object);
 		}
 
 		return $object;
@@ -1301,7 +1302,7 @@ abstract class BasicObject {
 
 	protected static function validate_cache() {
 		if(BasicObject::$_enable_cache && BasicObject::$_global_cache_revision > static::$_local_cache_revision) {
-			static::$_from_field_cache = array();
+			BasicObject::$_from_field_cache = array();
 			static::$_selection_cache = array();
 			static::$_sum_cache = array();
 			static::$_count_cache = array();
