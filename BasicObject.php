@@ -9,11 +9,9 @@ abstract class BasicObject {
 	protected $_old_key = array();
 	protected $_exists;
 
-	protected static $_global_cache_revision = 0;
-	protected static $_local_cache_revision = 0;
 	/*
 	 *	[
-	 *		'field' => [
+	 *		'table:field' => [
 	 *			value => object
 	 *		]
 	 *	]
@@ -54,7 +52,10 @@ abstract class BasicObject {
 	}
 
 	public static function invalidate_cache() {
-		++BasicObject::$_global_cache_revision;
+		BasicObject::$_from_field_cache = array();
+		BasicObject::$_selection_cache = array();
+		BasicObject::$_sum_cache = array();
+		BasicObject::$_count_cache = array();
 	}
 
 	/**
@@ -539,15 +540,15 @@ abstract class BasicObject {
 	protected static function from_field($field, $value, $type='s'){
 		global $db;
 
-		static::validate_cache();
+		$field_name = $field;
+		$table_name = static::table_name();
+		$cache_key = "$table_name:$field_name";
 
-		if(BasicObject::$_enable_cache && isset(static::$_from_field_cache[$field][$value])) {
-			return self::cache_clone(static::$_from_field_cache[$field][$value]);
+		/* test if a cached result exists */
+		if(BasicObject::$_enable_cache && isset(BasicObject::$_from_field_cache[$cache_key][$value])){
+			return self::cache_clone(BasicObject::$_from_field_cache[$cache_key][$value]);
 		}
 
-		$field_name = $field;
-
-		$table_name = static::table_name();
 		if(!self::in_table($field, $table_name)){
 			throw new Exception("No such column '$field' in table '$table_name'");
 		}
@@ -571,10 +572,10 @@ abstract class BasicObject {
 		}
 		$stmt->close();
 
-		if(BasicObject::$_enable_cache) {
-			if(!isset(static::$_from_field_cache[$field_name])) static::$_from_field_cache[$field_name] = array();
-
-			static::$_from_field_cache[$field_name][$value] = self::cache_clone($object);
+		/* store result in cache */
+		if(BasicObject::$_enable_cache){
+			if(!isset(BasicObject::$_from_field_cache[$cache_key])) BasicObject::$_from_field_cache[$cache_key] = array();
+			BasicObject::$_from_field_cache[$cache_key][$value] = self::cache_clone($object);
 		}
 
 		return $object;
@@ -584,13 +585,11 @@ abstract class BasicObject {
 		global $db;
 		$data = static::build_query($params, '*');
 
-		static::validate_cache();
-
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
 			$cache_string = implode(";", $data);
-			if(isset(static::$_sum_cache[$cache_string])) {
-				return static::$_sum_cache[$cache_string];
+			if(isset(BasicObject::$_sum_cache[$cache_string])) {
+				return BasicObject::$_sum_cache[$cache_string];
 			}
 		}
 
@@ -636,7 +635,7 @@ abstract class BasicObject {
 		$stmt->close();
 
 		if(BasicObject::$_enable_cache) {
-			static::$_sum_cache[$cache_string] = $result;
+			BasicObject::$_sum_cache[$cache_string] = $result;
 		}
 
 		return $result;
@@ -654,8 +653,8 @@ abstract class BasicObject {
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
 			$cache_string = implode(";", $data);
-			if(isset(static::$_count_cache[$cache_string])) {
-				return static::$_count_cache[$cache_string];
+			if(isset(BasicObject::$_count_cache[$cache_string])) {
+				return BasicObject::$_count_cache[$cache_string];
 			}
 		}
 
@@ -678,7 +677,7 @@ abstract class BasicObject {
 		$stmt->close();
 
 		if(BasicObject::$_enable_cache) {
-			static::$_count_cache[$cache_string] = $result;
+			BasicObject::$_count_cache[$cache_string] = $result;
 		}
 
 		return $result;
@@ -719,13 +718,11 @@ abstract class BasicObject {
 		global $db;
 		$data = self::build_query($params, '*');
 
-		static::validate_cache();
-
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
 			$cache_string = implode(";", $data);
-			if(isset(static::$_selection_cache[$cache_string])) {
-				return self::cache_clone( static::$_selection_cache[$cache_string]);
+			if(isset(BasicObject::$_selection_cache[$cache_string])) {
+				return self::cache_clone( BasicObject::$_selection_cache[$cache_string]);
 			}
 		}
 
@@ -771,7 +768,7 @@ abstract class BasicObject {
 		$stmt->close();
 
 		if(BasicObject::$_enable_cache) {
-			static::$_selection_cache[$cache_string] = self::cache_clone($ret);
+			BasicObject::$_selection_cache[$cache_string] = self::cache_clone($ret);
 		}
 
 		return $ret;
@@ -1298,16 +1295,7 @@ abstract class BasicObject {
 		}
 		return get_class($this). "{".implode(", ",$content)."}";
 	}
-
-	protected static function validate_cache() {
-		if(BasicObject::$_enable_cache && BasicObject::$_global_cache_revision > static::$_local_cache_revision) {
-			static::$_from_field_cache = array();
-			static::$_selection_cache = array();
-			static::$_sum_cache = array();
-			static::$_count_cache = array();
-			static::$_local_cache_revision = BasicObject::$_global_cache_revision;
-		}
-	}
 }
+
 class UndefinedMemberException extends Exception{}
 class UndefinedFunctionException extends Exception{}
