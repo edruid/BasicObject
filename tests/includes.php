@@ -1,14 +1,14 @@
 <?php
+
+require_once 'PEAR.php';
+
 include realpath(dirname(__FILE__)) . "/database.php";
 
+include realpath(dirname(__FILE__)) . "/MC.php";
 include realpath(dirname(__FILE__)) . "/../BasicObject.php";
 include realpath(dirname(__FILE__)) . "/../ValidatingBasicObject.php";
+include realpath(dirname(__FILE__)) . "/DatabaseTestCase.php";
 
-function __autoload($class)
-{
-	$root = realpath(dirname(__FILE__));
-	if(file_exists($root.'/models/'.$class.'.php')){
-		require_once $root.'/models/'.$class.'.php';
-	}
+foreach(glob(realpath(dirname(__FILE__)) . "/models/*.php") as $filename) {
+	require_once $filename;
 }
-

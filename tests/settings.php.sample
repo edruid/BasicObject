@@ -7,3 +7,8 @@ $db_settings = array(
 	'database'=>'basicobject-testing',
 	'charset'=>'utf8'
 );
+
+$memcache_settings = array(
+	'host' => 'localhost',
+	'port' => 11211
+);

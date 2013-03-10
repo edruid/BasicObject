@@ -13,10 +13,6 @@ $db = new mysqli(
 	$db_settings['port']
 );
 
-function db_prepare_testing() {
-	db_select_database();
-}
-
 function db_select_database() {
 	global $db, $db_settings;
 	$db->select_db($db_settings['database']);
@@ -33,5 +29,7 @@ function db_run_file($filename) {
 	$contents = fread($handle, filesize($filename));
 	fclose($handle);
 
-	$db->multi_query($contents);
+	if(!$db->multi_query($contents)) {
+		echo "Failed to execute query: {$db->error}\n";
+	}
 }
