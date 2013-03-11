@@ -51,7 +51,7 @@ function db_run_file($filename) {
 	do {
 		$result = $db->use_result();
 		if($result) $result->free();
-	} while($db->next_result());
+	} while($db->more_results() && $db->next_result());
 }
 
 function db_query($query) {
