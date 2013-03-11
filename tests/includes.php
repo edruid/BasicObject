@@ -3,6 +3,7 @@
 require_once 'PEAR.php';
 
 include realpath(dirname(__FILE__)) . "/database.php";
+include realpath(dirname(__FILE__)) . "/helpers.php";
 
 include realpath(dirname(__FILE__)) . "/MC.php";
 include realpath(dirname(__FILE__)) . "/../BasicObject.php";
