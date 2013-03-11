@@ -362,8 +362,18 @@ abstract class BasicObject {
 				$this->_old_key[$name] = $this->$name;
 			}
 			$this->_data[$name] = $value;
-		} elseif($this->is_table($name) && $this->in_table($this->id_name($name), $this->table_name())) {
-			$name = $this->id_name($name);
+		} elseif($this->is_table($name)) {
+			$connection = self::connection($name, $this->table_name());
+			if($connection && $connection['TABLE_NAME'] == $this->table_name()) {
+				$name = $connection['COLUMN_NAME'];
+			} else {
+				$other_id = self::id_name($name);
+				if($other_id != 'id' && in_array($other_id, self::columns($this->table_name()))) {
+					$name = $other_id;
+				} else {
+					throw new Exception("No connection from '{$this->table_name()}' to table '$name'");
+				}
+			}
 			$this->$name = $value->id;
 		} else {
 			throw new Exception("unknown property '$name'");
