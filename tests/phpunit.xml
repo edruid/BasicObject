@@ -1,11 +1,12 @@
-<phpunit bootstrap="includes.php"
-         colors="true"
-				 strict="true">
+<phpunit colors="true"
+	stopOnError="true"
+	stopOnFailure="true"
+	strict="true">
 
-				 <testsuites>
-					 <testsuite name="Basics">
-						 <file>suites/BasicObject/BasicTest.php</file>
-					 </testsuite>
+	<testsuites>
+		<testsuite name="Basics">
+			<file>suites/BasicObject/BasicTest.php</file>
+		</testsuite>
 
-					</testsuites>
+	</testsuites>
 </phpunit>

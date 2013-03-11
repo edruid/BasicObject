@@ -3,7 +3,7 @@ Tests
 
 To run the tests:
 
-	phpunit
+	./tests.sh
 
 To create new tests, add files to suites/ (see exists tests for examples),
 and optionally edit phpunit.xml if you create a new suite

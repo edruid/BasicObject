@@ -4,10 +4,14 @@ class DatabaseTestCase extends PHPUnit_Framework_TestCase {
 	protected $backupGlobalsBlacklist = array('db');
 
 	public static function setUpBeforeClass() {
+		global $cache;
 		db_init();
 		BasicObject::enable_structure_cache(MC::get_instance());
-		//make sure cache is only on when explicitly set
-		BasicObject::disable_cache();
+		if($cache) {
+			BasicObject::enable_cache();
+		} else {
+			BasicObject::disable_cache();
+		}
 	}
 
 	public function setUp() {
