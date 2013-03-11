@@ -8,6 +8,8 @@ include realpath(dirname(__FILE__)) . "/../BasicObject.php";
 
 echo "Setting up database {$db_settings['database']} for testing\n";
 
+db_create();
+
 echo "Dropping database if exists\n";
 
 $db->query("DROP DATABASE `{$db_settings['database']}`");

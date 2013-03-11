@@ -2,7 +2,7 @@
 
 class DatabaseTestCase extends PHPUnit_Framework_TestCase {
 	public static function setUpBeforeClass() {
-		db_select_database();
+		db_create(true);
 		BasicObject::enable_structure_cache(MC::get_instance());
 		//make sure cache is only on when explicitly set
 		BasicObject::disable_cache();
@@ -11,5 +11,9 @@ class DatabaseTestCase extends PHPUnit_Framework_TestCase {
 	public function setUp() {
 		BasicObject::$output_htmlspecialchars = false;
 		db_clean();
+	}
+
+	public static function tearDownAfterClass() {
+		BasicObject::clear_structure_cache(MC::get_instance());
 	}
 }

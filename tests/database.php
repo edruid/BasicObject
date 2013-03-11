@@ -2,16 +2,18 @@
 
 include realpath(dirname(__FILE__)) . "/settings.php";
 
-global $db;
 
-/* Database */
-$db = new mysqli(
-	$db_settings['host'],
-	$db_settings['username'],
-	$db_settings['password'],
-	"",
-	$db_settings['port']
-);
+function db_create($select_db = false) {
+	global $db, $db_settings;
+	/* Database */
+	$db = new mysqli(
+		$db_settings['host'],
+		$db_settings['username'],
+		$db_settings['password'],
+		$select_db ? $db_settings['database'] : "",
+		$db_settings['port']
+	);
+}
 
 function db_select_database() {
 	global $db, $db_settings;
