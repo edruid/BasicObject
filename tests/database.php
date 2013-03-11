@@ -1,6 +1,15 @@
 <?php
 
-include realpath(dirname(__FILE__)) . "/settings.php";
+$settings_file = realpath(dirname(__FILE__)) . "/settings.php";
+
+if(file_exists($settings_file)) {
+	include $settings_file;
+} else {
+	echo "\033[0;31m";
+	echo "Please configure test database in settings.php (see settings.php.sample)\n";
+	echo "\033[0;37m";
+	exit(-1);
+}
 
 /*
  * Setup database for testing
