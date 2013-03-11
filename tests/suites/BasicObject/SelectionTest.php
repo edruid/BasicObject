@@ -2,9 +2,20 @@
 
 class SelectionTest extends DatabaseTestCase {
 	public function testAutomaticJoin() {
+		$m1 = Blueprint::make('Model1', "with_model2");
+		
+		$m1_ref = Model1::selection(array('model2.int1' => $m1->Model2()->int1));
+		$this->assertCount(1, $m1_ref);
+		$this->assertEquals($m1, $m1_ref[0]);
 	}
 
 	public function testManualJoin() {
+		$m1 = Blueprint::make('Model1', array('int1' => 5000));
+		$m2 = Blueprint::make('Model2', array('int1' => 5000, 'str1' => 'derp'));
+
+		$m1_ref = Model1::selection(array( '@join' => array( 'model2:using' => 'int1'))	);
+		$this->assertCount(1, $m1_ref);
+		$this->assertEquals($m1, $m1_ref[0]);
 	}
 
 	public function testOrder() {

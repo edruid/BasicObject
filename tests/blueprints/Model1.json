@@ -2,5 +2,10 @@
 	default: {
 		int1: "100#{sn}",
 		str1: "str-#{sn}"
+	},
+	with_model2: {
+		int1: "100#{sn}",
+		str1: "str-#{sn}",
+		Model2: {}
 	}
 }
