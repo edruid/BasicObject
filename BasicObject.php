@@ -402,11 +402,16 @@ abstract class BasicObject {
 			foreach($obj as $k=>$v) {
 				$ret[$k] = clone $v;
 			}
-		} else if($obj != null) {
+			return $ret;
+		} else if($obj !== null) {
 			return clone $obj;
 		} else {
 			return null;
 		}
+	}
+
+	private static function in_cache(&$cache, $key) {
+		return isset($cache) && array_key_exists($key, $cache);
 	}
 
 	private static function changed($old, $cur){
@@ -557,7 +562,7 @@ abstract class BasicObject {
 		$cache_key = "$table_name:$field_name";
 
 		/* test if a cached result exists */
-		if(BasicObject::$_enable_cache && isset(BasicObject::$_from_field_cache[$cache_key][$value])){
+		if(BasicObject::$_enable_cache && self::in_cache(BasicObject::$_from_field_cache[$cache_key], $value)){
 			return self::cache_clone(BasicObject::$_from_field_cache[$cache_key][$value]);
 		}
 
@@ -600,7 +605,7 @@ abstract class BasicObject {
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
 			$cache_string = implode(";", $data);
-			if(isset(BasicObject::$_sum_cache[$cache_string])) {
+			if(self::in_cache(BasicObject::$_sum_cache,$cache_string)) {
 				return BasicObject::$_sum_cache[$cache_string];
 			}
 		}
@@ -665,7 +670,7 @@ abstract class BasicObject {
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
 			$cache_string = implode(";", $data);
-			if(isset(BasicObject::$_count_cache[$cache_string])) {
+			if(self::in_cache(BasicObject::$_count_cache,$cache_string)) {
 				return BasicObject::$_count_cache[$cache_string];
 			}
 		}
@@ -733,7 +738,7 @@ abstract class BasicObject {
 		$cache_string = null;
 		if(BasicObject::$_enable_cache) {
 			$cache_string = implode(";", $data);
-			if(isset(BasicObject::$_selection_cache[$cache_string])) {
+			if(self::in_cache(BasicObject::$_selection_cache,$cache_string)) {
 				return self::cache_clone( BasicObject::$_selection_cache[$cache_string]);
 			}
 		}
