@@ -2,27 +2,30 @@
 
 include realpath(dirname(__FILE__)) . "/settings.php";
 
-
-function db_create($select_db = false) {
+/*
+ * Setup database for testing
+ */
+function db_init() {
 	global $db, $db_settings;
 	/* Database */
 	$db = new mysqli(
 		$db_settings['host'],
 		$db_settings['username'],
 		$db_settings['password'],
-		$select_db ? $db_settings['database'] : "",
+		"",
 		$db_settings['port']
 	);
+
+	$db->query("DROP DATABASE `{$db_settings['database']}`");
+	$db->query("CREATE DATABASE `{$db_settings['database']}`");
+	db_select_database();
+	db_run_file("db.sql");
+	BasicObject::clear_structure_cache(MC::get_instance());
 }
 
 function db_select_database() {
 	global $db, $db_settings;
 	$db->select_db($db_settings['database']);
-}
-
-function db_clean() {
-	global $db;
-	$db->query("TRUNCATE TABLE *");
 }
 
 function db_run_file($filename) {
@@ -32,7 +35,20 @@ function db_run_file($filename) {
 	fclose($handle);
 
 	if(!$db->multi_query($contents)) {
-		echo "Failed to execute query: {$db->error}\n";
+		throw new Exception("Failed to execute query: {$db->error}\n");
+	}
+
+
+	do {
+		$result = $db->use_result();
+		if($result) $result->free();
+	} while($db->next_result());
+}
+
+function db_query($query) {
+	global $db;
+	if(!$db->query($db)) {
+		throw new Exception("Failed execute manual query '$query': ".$db->error);
 	}
 }
 
