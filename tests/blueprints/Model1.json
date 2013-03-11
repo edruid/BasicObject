@@ -1,0 +1,6 @@
+{
+	default: {
+		int1: "100#{sn}",
+		str1: "str-#{sn}"
+	}
+}
