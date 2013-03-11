@@ -1,2 +1,2 @@
 #!/bin/sh
-phpunit --color suites
+phpunit --colors suites
