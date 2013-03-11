@@ -8,7 +8,7 @@ include realpath(dirname(__FILE__)) . "/settings.php";
 function db_init() {
 	global $db, $db_settings;
 	/* Database */
-	$db = new mysqli(
+	$db = new CountingDB(
 		$db_settings['host'],
 		$db_settings['username'],
 		$db_settings['password'],
@@ -55,4 +55,32 @@ function db_query($query) {
 function db_close() {
 	global $db, $db_settings;
 	$db->close();
+}
+
+/**
+ * Counting database class
+ */
+
+class CountingDB extends MySQLi {
+
+	public static $queries = 0;
+
+	public function __construct($host, $username, $password, $database, $port) {
+		parent::__construct($host, $username, $password, $database, $port);
+	}	
+
+	public function prepare($query) {
+		return new CountingStatement($this, $query);
+	}
+}
+
+class CountingStatement extends mysqli_stmt {
+	public function __construct($db, $query) {
+		parent::__construct($db, $query);
+	}
+
+	public function execute() {
+		++CountingDB::$queries;
+		return parent::execute();
+	}
 }
