@@ -1,5 +1,5 @@
 echo "Running tests without cache\n"
-phpunit --bootstrap "no_cache.php"
+phpunit --bootstrap "no_cache.php" --verbose $@
 
 ret=$?
 
@@ -10,5 +10,5 @@ fi
 
 echo "\n----------------------\n"
 echo "Running tests with cache\n"
-phpunit --bootstrap "with_cache.php"
+phpunit --bootstrap "with_cache.php" --verbose $@
 exit $?

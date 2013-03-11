@@ -46,7 +46,20 @@ class SimpleFunctionsTest extends DatabaseTestCase {
 	}
 
 	public function testOutputHTMLSpecialChars() {
+		$html = "<html>Foobar \" <script foo='bar'>derp;</script> </html>";
+		$m1 = Blueprint::make('Model1', array('str1' => $html));
 
+		BasicObject::$output_htmlspecialchars = false;
+
+		$m1 = Model1::from_id($m1->id);
+
+		$this->assertEquals($html, $m1->str1);
+
+		BasicObject::$output_htmlspecialchars = true;
+		$escaped = htmlspecialchars($html, ENT_QUOTES, 'utf-8');
+		$this->assertEquals($escaped, $m1->str1);
+
+		BasicObject::$output_htmlspecialchars = false;
 	}
 
 	public function testDefaultOrder() {
