@@ -322,6 +322,8 @@ abstract class BasicObject {
 	 * @returns bool Returns True if the value exists an is not null, false otherwise.
 	 */
 	public function __isset($name) {
+		if($name == 'id') return true;
+
 		if(isset($this->_data[$name])) {
 			return true;
 		}
