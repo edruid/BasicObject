@@ -788,7 +788,7 @@ abstract class BasicObject {
 		if(count($order) == 0 && strpos(strtolower($wheres),'order by') === false) {
 			// Set default order
 			if(static::default_order() != null)
-				$order[] = static::default_order();
+				self::handle_order(static::default_order(), $joins, $order, $table_name, self::columns($table_name));
 		}
 
 		$query = "SELECT ";
@@ -854,28 +854,7 @@ abstract class BasicObject {
 						$order[] = $value;
 						break;
 					case '@order':
-						if(!is_array($value)){
-							$value = array($value);
-						}
-						foreach($value as $o){
-							$desc = false;
-							if(substr($o,-5) == ':desc'){
-								$desc = true;
-								$o = substr($o, 0,-5);
-							}
-							$path = explode('.', $o);
-							if(count($path)>1){
-								$o = '`'.self::fix_join($path, $joins, $columns, $table_name).'`';
-							} elseif(self::in_table($o, $table_name)){
-								$o = "`$table_name`.`$o`";
-							} else {
-								throw new Exception("No such column '$o' in table '$table_name' (value '$value')");
-							}
-							if($desc){
-								$o .= ' DESC';
-							}
-							$order[] = $o;
-						}
+						self::handle_order($value, $joins, $order, $table_name, $columns);
 						break;
 					case '@limit':
 						if(is_numeric($value)){
@@ -1287,6 +1266,34 @@ abstract class BasicObject {
 			$stmt->close();
 		}
 		return $db_name;
+	}
+
+	/**
+	 * Helper method for handling @order and default_order
+	 */
+	private static function handle_order($value,&$joins, &$order, &$table_name, &$columns) {
+		if(!is_array($value)){
+			$value = array($value);
+		}
+		foreach($value as $o){
+			$desc = false;
+			if(substr($o,-5) == ':desc'){
+				$desc = true;
+				$o = substr($o, 0,-5);
+			}
+			$path = explode('.', $o);
+			if(count($path)>1){
+				$o = '`'.self::fix_join($path, $joins, $columns, $table_name).'`';
+			} elseif(self::in_table($o, $table_name)){
+				$o = "`$table_name`.`$o`";
+			} else {
+				throw new Exception("No such column '$o' in table '$table_name' (value '$value')");
+			}
+			if($desc){
+				$o .= ' DESC';
+			}
+			$order[] = $o;
+		}
 	}
 
 	public function __toString() {
