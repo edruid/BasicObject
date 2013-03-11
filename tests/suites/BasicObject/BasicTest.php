@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname(__FILE__) . "/../includes.php";
-
 class BasicTest extends DatabaseTestCase {
 
 	public function testFromId() {

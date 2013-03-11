@@ -3,9 +3,10 @@ Tests
 
 To run the tests:
 
-	./tests.sh
+	phpunit
 
-To create new tests, add files to suites/ (see exists tests for examples)
+To create new tests, add files to suites/ (see exists tests for examples),
+and optionally edit phpunit.xml if you create a new suite
 
 Blueprints
 =======
