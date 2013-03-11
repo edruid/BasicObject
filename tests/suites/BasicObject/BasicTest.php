@@ -76,5 +76,33 @@ class BasicTest extends DatabaseTestCase {
 		$this->assertNull($model);
 	}
 
+	/**
+	 * @depends testInsert
+	 */
+	public function testSelection() {
+		$key = 'selection_test';
+		$models = array(
+			Blueprint::make('Model1', array('str1' => $key)),
+			Blueprint::make('Model1', array('str1' => $key)),
+		);
+		$res = Model1::selection(array('str1' => $key));
+		$this->assertCount(count($models), $res);
+
+		$this->assertTrue(compare_result($res, $models));
+	}
+
+	/**
+	 * @depends testSelection
+	 */
+	public function testSum() {
+		$sum = 0;
+		$key = "sumtest";
+		for($i = 0; $i < 100; ++$i) {
+			Blueprint::make('Model1', array('str1' => $key, 'int1' => $i));
+			$sum += $i;
+		}
+		$this->assertEquals(Model1::sum('int1', array('str1' => $key)), $sum);
+	}
+
 }
 
