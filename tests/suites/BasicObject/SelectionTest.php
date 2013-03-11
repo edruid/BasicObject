@@ -13,12 +13,12 @@ class SelectionTest extends DatabaseTestCase {
 		$m2 = Blueprint::make('Model1', array('int1' => 2, 'str1' => $key));
 
 		$selection = Model1::selection(array('str1' => $key, '@order' => 'int1'));
-		$this->assertEquals($selection[0]->id, $m1->id);
-		$this->assertEquals($selection[1]->id, $m2->id);
+		$this->assertEquals($m1->id, $selection[0]->id);
+		$this->assertEquals($m2->id, $selection[1]->id);
 
 		$selection = Model1::selection(array('str1' => $key, '@order' => 'int1:desc'));
-		$this->assertEquals($selection[0]->id, $m2->id);
-		$this->assertEquals($selection[1]->id, $m1->id);
+		$this->assertEquals($m2->id, $selection[0]->id);
+		$this->assertEquals($m1->id, $selection[1]->id);
 	}
 
 	/**

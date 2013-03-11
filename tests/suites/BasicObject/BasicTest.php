@@ -10,8 +10,8 @@ class BasicTest extends DatabaseTestCase {
 		$id = $db->insert_id;
 		$obj = Model1::from_id($id);
 		$this->assertNotNull($obj);
-		$this->assertEquals($obj->int1, 5);
-		$this->assertEquals($obj->str1, "foobar");
+		$this->assertEquals(5, $obj->int1);
+		$this->assertEquals("foobar", $obj->str1);
 	}
 
 	/**
@@ -30,8 +30,8 @@ class BasicTest extends DatabaseTestCase {
 
 		$model1 = Model1::from_id($id);
 
-		$this->assertEquals($model1->int1, 1);
-		$this->assertEquals($model1->str1, "Test");
+		$this->assertEquals(1, $model1->int1);
+		$this->assertEquals("Test", $model1->str1);
 	}
 
 	/**
@@ -48,8 +48,8 @@ class BasicTest extends DatabaseTestCase {
 
 		$model1 = Model1::from_id($id);
 
-		$this->assertEquals($model1->int1, 1);
-		$this->assertEquals($model1->str1, "Test");
+		$this->assertEquals(1, $model1->int1);
+		$this->assertEquals("Test", $model1->str1);
 	}
 
 	/**
@@ -101,7 +101,7 @@ class BasicTest extends DatabaseTestCase {
 			Blueprint::make('Model1', array('str1' => $key, 'int1' => $i));
 			$sum += $i;
 		}
-		$this->assertEquals(Model1::sum('int1', array('str1' => $key)), $sum);
+		$this->assertEquals($sum, Model1::sum('int1', array('str1' => $key)));
 	}
 
 	/**
@@ -112,7 +112,7 @@ class BasicTest extends DatabaseTestCase {
 		for($i = 0; $i < 50; ++$i) {
 			Blueprint::make('Model1', array('str1' => $key));
 		}
-		$this->assertEquals(Model1::count(array('str1' => $key)), 50);
+		$this->assertEquals(50, Model1::count(array('str1' => $key)));
 	}
 
 }
