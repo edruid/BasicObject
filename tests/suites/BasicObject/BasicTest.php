@@ -52,5 +52,29 @@ class BasicTest extends DatabaseTestCase {
 		$this->assertEquals($model1->str1, "Test");
 	}
 
+	/**
+	 * @depends testInsert
+	 */
+	public function testIsset() {
+		$model = Blueprint::make('Model1', false);
+		$this->assertTrue(isset($model->id), 'id');
+		$this->assertTrue(isset($model->int1), 'int1');
+		$this->assertTrue(isset($model->str1), 'str1');
+		$this->assertFalse(isset($model->foobar));
+	}
+
+	/**
+	 * @depends testInsert
+	 */
+	public function testDelete() {
+		$model = Blueprint::make('Model1');
+		$id = $model->id;
+
+		$model->delete();
+
+		$model = Model1::from_id($id);
+		$this->assertNull($model);
+	}
+
 }
 
