@@ -390,7 +390,8 @@ abstract class BasicObject {
 			foreach($obj as $k=>$v) {
 				$ret[$k] = clone $v;
 			}
-		} else if($obj != null) {
+			return $ret;
+		} else if($obj !== null) {
 			return clone $obj;
 		} else {
 			return null;
