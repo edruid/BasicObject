@@ -124,8 +124,6 @@ class Blueprint {
 
 		$contents = preg_replace('/^(\s+)(\w+):/m', '$1"$2":', $contents);
 
-		var_dump($contents);
-
 		$this->data = json_decode($contents, true);
 
 		if($this->data === NULL) {
