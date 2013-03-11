@@ -6,6 +6,13 @@
 	<testsuites>
 		<testsuite name="Basics">
 			<file>suites/BasicObject/BasicTest.php</file>
+			<file>suites/BasicObject/SelectionTest.php</file>
+		</testsuite>
+
+		<testsuite name="BasicObjectTests">
+			<directory>suites/BasicObject</directory>
+			<exclude>suites/BasicObject/BasicTest.php</exclude>
+			<exclude>suites/BasicObject/SelectionTest.php</exclude>
 		</testsuite>
 
 	</testsuites>

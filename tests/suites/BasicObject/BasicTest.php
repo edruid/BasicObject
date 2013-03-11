@@ -104,5 +104,16 @@ class BasicTest extends DatabaseTestCase {
 		$this->assertEquals(Model1::sum('int1', array('str1' => $key)), $sum);
 	}
 
+	/**
+	 * @depends testSelection
+	 */
+	public function testCount() {
+		$key = "counttest";
+		for($i = 0; $i < 50; ++$i) {
+			Blueprint::make('Model1', array('str1' => $key));
+		}
+		$this->assertEquals(Model1::count(array('str1' => $key)), 50);
+	}
+
 }
 
