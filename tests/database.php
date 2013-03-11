@@ -35,3 +35,8 @@ function db_run_file($filename) {
 		echo "Failed to execute query: {$db->error}\n";
 	}
 }
+
+function db_close() {
+	global $db;
+	$db->close();
+}
