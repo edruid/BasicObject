@@ -1,5 +1,5 @@
 echo "Running tests without cache\n"
-phpunit --bootstrap "no_cache.php" --verbose $@
+phpunit --bootstrap "no_cache.php" --verbose --exclude-group cache $@
 
 ret=$?
 
