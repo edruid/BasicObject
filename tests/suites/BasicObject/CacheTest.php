@@ -37,8 +37,49 @@ class CacheTest extends DatabaseTestCase {
 		Model1::from_id($id);
 		$num_queries = CountingDB::$queries;
 		for($i=0; $i<100; ++$i) {
-			$m = Model1::from_id($id);
-			$this->assertEquals($m1, $m);
+			Model1::from_id($id);
+		}
+
+		$this->assertEquals($num_queries, CountingDB::$queries);
+	}
+
+	public function testQueryReductionSelection() {
+		CountingDB::$queries = 0;
+
+		$m1 = Blueprint::make('Model1');
+
+		Model1::selection(array('int1' => $m1->int1));
+		$num_queries = CountingDB::$queries;
+		for($i=0; $i<100; ++$i) {
+			Model1::selection(array('int1' => $m1->int1));
+		}
+
+		$this->assertEquals($num_queries, CountingDB::$queries);
+	}
+
+	public function testQueryReductionCount() {
+		CountingDB::$queries = 0;
+
+		$m1 = Blueprint::make('Model1');
+
+		Model1::count(array('int1' => $m1->int1));
+		$num_queries = CountingDB::$queries;
+		for($i=0; $i<100; ++$i) {
+			Model1::count(array('int1' => $m1->int1));
+		}
+
+		$this->assertEquals($num_queries, CountingDB::$queries);
+	}
+
+	public function testQueryReductionSum() {
+		CountingDB::$queries = 0;
+
+		$m1 = Blueprint::make('Model1');
+
+		Model1::sum('int1', array('int1' => $m1->int1));
+		$num_queries = CountingDB::$queries;
+		for($i=0; $i<100; ++$i) {
+			Model1::sum('int1', array('int1' => $m1->int1));
 		}
 
 		$this->assertEquals($num_queries, CountingDB::$queries);
