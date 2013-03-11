@@ -1286,7 +1286,7 @@ abstract class BasicObject {
 	/**
 	 * Helper method for handling @order and default_order
 	 */
-	private static function handle_order($value,&$joins, &$order, &$table_name, &$columns) {
+	private static function handle_order($value,&$joins, &$order, &$table_name, $columns) {
 		if(!is_array($value)){
 			$value = array($value);
 		}
