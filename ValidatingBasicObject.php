@@ -168,6 +168,9 @@ class ValidatingBasicObject extends BasicObject {
 	protected function validate_length_of($var,$options=array()) {
 		$len = strlen($this->$var);
 
+		if ( isset($options['min']) ) $options['minimum'] = $options['min'];
+		if ( isset($options['max']) ) $options['maximum'] = $options['max'];
+
 		if(isset($options['is']) && $len != $options['is']) {
 			$message = "måste vara exakt {$options['is']} tecken lång";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
