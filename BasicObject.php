@@ -265,6 +265,9 @@ abstract class BasicObject {
 				} else {
 					// They know us (multiple values)
 					$params[$con['COLUMN_NAME']] = $this->id;
+					if(count($arguments) == 1 && is_array($arguments[0])) {
+						$params = array_merge($arguments[0], $params);
+					}
 					return $name::selection($params);
 				}
 			}
