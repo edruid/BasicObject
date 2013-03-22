@@ -734,7 +734,7 @@ abstract class BasicObject {
 	 *
 	 * Joins: <<join-type>>: The join type (eg. LEFT,RIGHT OUTER etc)
 	 * This produces the join " <<join-type>> JOIN <<table>> <<operator>> <<condition>>
-	 * Operator can be 'on' or 'using'
+	 * Operator can be 'on' or 'using' (default 'on')
 	 *
 	 * @returns Array An array of Objects.
 	 */
