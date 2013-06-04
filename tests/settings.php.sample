@@ -1,0 +1,14 @@
+<?php
+$db_settings = array(
+	'host'=>'localhost',
+	'port'=>'3306',
+	'username'=>'root',
+	'password'=>'',
+	'database'=>'basicobject-testing',
+	'charset'=>'utf8'
+);
+
+$memcache_settings = array(
+	'host' => 'localhost',
+	'port' => 11211
+);
