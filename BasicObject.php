@@ -9,12 +9,21 @@ abstract class BasicObject {
 	protected $_old_key = array();
 	protected $_exists;
 
-	/*
-	 *	[
-	 *		'table:field' => [
-	 *			value => object
-	 *		]
-	 *	]
+	/* Cache of objects returned from FooObject::from_field()
+	 * var_dump of $_from_field_cache would output something like:
+	 * array(x) {
+	 *   ["table1:field1"]=>
+	 *   array(x) {
+	 *     ["value"]=>
+	 *     object(FooObject)#X (x) {
+	 *       ... object properties ...
+	 *     }
+	 *   }
+	 *   ["table1:field2"]=>
+	 *   array(x) {
+	 *     ...
+	 *   }
+	 * }
 	 */
 	protected static $_from_field_cache = array();
 
@@ -39,7 +48,7 @@ abstract class BasicObject {
 
 	public static $output_htmlspecialchars;
 
-	/*
+	/**
 	 * Methods for toggling query caching on and off
 	 * Default: Off
 	 */
