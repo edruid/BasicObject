@@ -150,7 +150,10 @@ abstract class BasicObject {
 	}
 
 	public static function clear_structure_cache($memcache) {
-		$memcache->flush();
+		$memcache->delete("column_ids");
+		$memcache->delete("connection_table");
+		$memcache->delete("tables");
+		$memcache->delete("columns");
 		BasicObject::$column_ids = array();
 		BasicObject::$connection_table = array();
 		BasicObject::$tables = null;
