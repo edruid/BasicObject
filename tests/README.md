@@ -1,3 +1,11 @@
+PHPUnit
+======
+
+The tests requires phpunit: https://github.com/sebastianbergmann/phpunit/
+Install it by running
+
+	sudo ./install_phpunit.sh
+
 Tests
 =====
 
