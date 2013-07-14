@@ -261,7 +261,11 @@ class ValidatingBasicObject extends BasicObject {
 	 * Validates that $var is unique
 	 */
 	protected function validate_uniqueness_of($var,$options=array()) {
-		if(static::count(array($var => $this->$var, '@limit' => 1)) != 0) {
+		$sel = array($var => $this->$var,  '@limit' => 1);
+		if($this->_exists) {
+			$sel[static::id_name().":!="] = $this->id;
+		}
+		if(static::count($sel) != 0) {
 			$message = "måste vara unik";
 			$this->add_error($var,isset($options['message'])?$options['message']:$message);
 		}

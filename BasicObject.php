@@ -89,7 +89,7 @@ abstract class BasicObject {
 	 * Returns the table name associated with this class.
 	 * @return The name of the table this class is associated with.
 	 */
-	private static function id_name($class_name = null){
+	protected static function id_name($class_name = null){
 		$pk = static::primary_key($class_name);
 		if(count($pk) < 1) {
 			return null;
