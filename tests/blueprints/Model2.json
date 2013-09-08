@@ -1,0 +1,6 @@
+{
+	default: {
+		int1: "200#{sn}",
+		str1: "A String #{sn}"
+	}
+}
