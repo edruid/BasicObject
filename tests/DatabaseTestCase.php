@@ -6,7 +6,7 @@ class DatabaseTestCase extends PHPUnit_Framework_TestCase {
 	public static function setUpBeforeClass() {
 		global $cache;
 		db_init();
-		BasicObject::enable_structure_cache(MC::get_instance());
+		BasicObject::enable_structure_cache(MC::get_instance(), "bo_unit_test_");
 		if($cache) {
 			BasicObject::enable_cache();
 		} else {
@@ -19,7 +19,7 @@ class DatabaseTestCase extends PHPUnit_Framework_TestCase {
 	}
 
 	public static function tearDownAfterClass() {
-		BasicObject::clear_structure_cache(MC::get_instance());
+		BasicObject::clear_structure_cache(MC::get_instance(), "bo_unit_test_");
 		db_close();
 	}
 }

@@ -29,7 +29,7 @@ function db_init() {
 	$db->query("CREATE DATABASE `{$db_settings['database']}`");
 	db_select_database();
 	db_run_file("db.sql");
-	BasicObject::clear_structure_cache(MC::get_instance());
+	BasicObject::clear_structure_cache(MC::get_instance(), "bo_unit_test_");
 }
 
 function db_select_database() {

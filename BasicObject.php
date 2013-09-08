@@ -40,6 +40,7 @@ abstract class BasicObject {
 	 * Memcache for caching database structure between requests
 	 */
 	private static $memcache = null;
+	private static $memcache_prefix;
 
 	private static $column_ids = array();
 	private static $connection_table = array();
@@ -142,27 +143,28 @@ abstract class BasicObject {
 	 * Enables structure cache using the provided Memcache object
 	 * The memcache instance must be connected
 	 */
-	public static function enable_structure_cache($memcache) {
+	public static function enable_structure_cache($memcache, $prefix = "basicobject_") {
 		BasicObject::$memcache = $memcache;
+		BasicObject::$memcache_prefix = $prefix;
 
-		$stored = BasicObject::$memcache->get("column_ids");
+		$stored = BasicObject::$memcache->get(BasicObject::$memcache_prefix . "column_ids");
 		if($stored) BasicObject::$column_ids = unserialize($stored);
 
-		$stored = BasicObject::$memcache->get("connection_table");
+		$stored = BasicObject::$memcache->get(BasicObject::$memcache_prefix . "connection_table");
 		if($stored) BasicObject::$connection_table = unserialize($stored);
 
-		$stored = BasicObject::$memcache->get("tables");
+		$stored = BasicObject::$memcache->get(BasicObject::$memcache_prefix . "tables");
 		if($stored) BasicObject::$tables = unserialize($stored);
 
-		$stored = BasicObject::$memcache->get("columns");
+		$stored = BasicObject::$memcache->get(BasicObject::$memcache_prefix . "columns");
 		if($stored) BasicObject::$columns = unserialize($stored);
 	}
 
-	public static function clear_structure_cache($memcache) {
-		$memcache->delete("column_ids");
-		$memcache->delete("connection_table");
-		$memcache->delete("tables");
-		$memcache->delete("columns");
+	public static function clear_structure_cache($memcache, $prefix = "basicobject_") {
+		$memcache->delete($prefix . "column_ids");
+		$memcache->delete($prefix . "connection_table");
+		$memcache->delete($prefix . "tables");
+		$memcache->delete($prefix . "columns");
 		BasicObject::$column_ids = array();
 		BasicObject::$connection_table = array();
 		BasicObject::$tables = null;
@@ -171,25 +173,25 @@ abstract class BasicObject {
 
 	private static function store_column_ids() {
 		if(BasicObject::$memcache) {
-			BasicObject::$memcache->set("column_ids", serialize(BasicObject::$column_ids), 0, 0); /* no expire */
+			BasicObject::$memcache->set(BasicObject::$memcache_prefix . "column_ids", serialize(BasicObject::$column_ids), 0, 0); /* no expire */
 		}
 	}
 
 	private static function store_connection_table() {
 		if(BasicObject::$memcache) {
-			BasicObject::$memcache->set("connection_table", serialize(BasicObject::$connection_table), 0, 0); /* No expire */
+			BasicObject::$memcache->set(BasicObject::$memcache_prefix . "connection_table", serialize(BasicObject::$connection_table), 0, 0); /* No expire */
 		}
 	}
 
 	private static function store_tables() {
 		if(BasicObject::$memcache) {
-			BasicObject::$memcache->set("tables", serialize(BasicObject::$tables), 0, 0); /* No expire */
+			BasicObject::$memcache->set(BasicObject::$memcache_prefix . "tables", serialize(BasicObject::$tables), 0, 0); /* No expire */
 		}
 	}
 
 	private static function store_columns() {
 		if(BasicObject::$memcache) {
-			BasicObject::$memcache->set("columns", serialize(BasicObject::$columns), 0, 0); /* No expire */
+			BasicObject::$memcache->set(BasicObject::$memcache_prefix . "columns", serialize(BasicObject::$columns), 0, 0); /* No expire */
 		}
 	}
 
